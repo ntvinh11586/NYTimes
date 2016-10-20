@@ -5,20 +5,19 @@ import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.GridView;
 import android.widget.Toast;
 
 import com.coderschool.vinh.nytimes.Article;
 import com.coderschool.vinh.nytimes.ArticleArrayAdapter;
+import com.coderschool.vinh.nytimes.ItemClickSupport;
 import com.coderschool.vinh.nytimes.R;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -34,12 +33,11 @@ import cz.msebera.android.httpclient.Header;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText etQuery;
-    GridView gvResults;
-    Button btnSearch;
+    RecyclerView rvResult;
 
     ArrayList<Article> articles;
     ArticleArrayAdapter adapter;
+
     String searchQuery = "";
 
     @Override
@@ -51,8 +49,10 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("NYTimesSearch");
 
         setupViews();
+
         onArticleSearch();
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -65,13 +65,12 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                // perform query here
+
                 searchQuery = query;
                 Toast.makeText(MainActivity.this, "ok", Toast.LENGTH_SHORT).show();
 
                 onArticleSearch();
-                // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
-                // see https://code.google.com/p/android/issues/detail?id=24599
+
                 searchView.clearFocus();
 
                 return true;
@@ -87,23 +86,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setupViews() {
-        gvResults = (GridView)findViewById(R.id.gvResults);
+        rvResult = (RecyclerView)findViewById(R.id.rvContacts);
+
         articles = new ArrayList<>();
+
         adapter = new ArticleArrayAdapter(this, articles);
-        gvResults.setAdapter(adapter);
+        rvResult.setAdapter(adapter);
 
-        gvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
-                Intent i = new Intent(getApplicationContext(), ArticleActivity.class);
+        StaggeredGridLayoutManager gridLayoutManager =
+                new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
 
-                Article article = articles.get(pos);
+        rvResult.setLayoutManager(gridLayoutManager);
 
-                i.putExtra("article", article);
+        ItemClickSupport.addTo(rvResult).setOnItemClickListener(
+                new ItemClickSupport.OnItemClickListener() {
+                    @Override
+                    public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                        Intent i = new Intent(getApplicationContext(), ArticleActivity.class);
 
-                startActivity(i);
-            }
-        });
+                        Article article = articles.get(position);
+
+                        i.putExtra("article", article);
+
+                        startActivity(i);
+                    }
+                }
+        );
     }
 
     public void onArticleSearch() {
@@ -128,10 +136,14 @@ public class MainActivity extends AppCompatActivity {
                 JSONArray articleJsonResults = null;
 
                 try {
-                    adapter.clear();
+//                    adapter.clear();
+                    articles.clear();
+                    adapter.notifyDataSetChanged();
                     articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
-                    adapter.addAll(Article.fromJSONArray(articleJsonResults));
+//                    adapter.addAll(Article.fromJSONArray(articleJsonResults));
 //                    adapter.notifyDataSetChanged();
+                    articles.addAll(Article.fromJSONArray(articleJsonResults));
+                    adapter.notifyDataSetChanged();
                     Log.d("DEBUG", articles.toString());
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -145,5 +157,4 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-
 }
