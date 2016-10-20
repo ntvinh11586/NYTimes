@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.coderschool.vinh.nytimes.Article;
 import com.coderschool.vinh.nytimes.ArticleArrayAdapter;
+import com.coderschool.vinh.nytimes.EndlessRecyclerViewScrollListener;
 import com.coderschool.vinh.nytimes.Filter;
 import com.coderschool.vinh.nytimes.ItemClickSupport;
 import com.coderschool.vinh.nytimes.R;
@@ -55,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
         setupViews();
 
-        onArticleSearch();
+        onArticleSearch(0);
     }
 
     @Override
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
                 searchQuery = query;
                 Toast.makeText(MainActivity.this, "ok", Toast.LENGTH_SHORT).show();
 
-                onArticleSearch();
+                onArticleSearch(0);
 
                 searchView.clearFocus();
 
@@ -107,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
             searchFilter = (Filter) Parcels.unwrap(data.getParcelableExtra("filter"));
-            onArticleSearch();
+            onArticleSearch(0);
         }
     }
 
@@ -124,6 +125,16 @@ public class MainActivity extends AppCompatActivity {
 
         rvResult.setLayoutManager(gridLayoutManager);
 
+
+        rvResult.addOnScrollListener(new EndlessRecyclerViewScrollListener(gridLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount) {
+
+                onArticleSearch(page);
+            }
+        });
+
+
         ItemClickSupport.addTo(rvResult).setOnItemClickListener(
                 new ItemClickSupport.OnItemClickListener() {
                     @Override
@@ -138,13 +149,15 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-    public void onArticleSearch() {
+    public void onArticleSearch(int page) {
         AsyncHttpClient client = new AsyncHttpClient();
         String url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
 
+        final int resultPage = page;
+
         RequestParams params = new RequestParams();
         params.put("api-key", "51065f56d04445baa91280fa70489e8e");
-        params.put("page", 0);
+        params.put("page", page);
 
         if (searchFilter != null) {
             String day = searchFilter.day >= 10 ?
@@ -182,14 +195,20 @@ public class MainActivity extends AppCompatActivity {
                 JSONArray articleJsonResults = null;
 
                 try {
-                    articles.clear();
+                    if (resultPage == 0) {
+                        articles.clear();
+                    }
+
                     adapter.notifyDataSetChanged();
 
                     articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
 
                     articles.addAll(Article.fromJSONArray(articleJsonResults));
                     adapter.notifyDataSetChanged();
-                    rvResult.scrollToPosition(0);
+
+                    if (resultPage == 0) {
+                        rvResult.scrollToPosition(0);
+                    }
 
                 } catch (JSONException e) {
                     e.printStackTrace();

@@ -25,6 +25,13 @@ public class DatePickerFragment extends DialogFragment {
         DatePickerDialog.OnDateSetListener listener = (DatePickerDialog.OnDateSetListener) getActivity();
 
         // Create a new instance of TimePickerDialog and return it
-        return new DatePickerDialog(getActivity(), listener, year, month, day);
+//        return new DatePickerDialog(getActivity(), listener, year, month, day);
+        DatePickerDialog dialogDatePicker = new DatePickerDialog(getActivity(), listener, year, month, day);
+
+        dialogDatePicker.getDatePicker().setSpinnersShown(true);
+        dialogDatePicker.getDatePicker().setCalendarViewShown(false);
+
+        return dialogDatePicker;
+
     }
 }
