@@ -3,18 +3,20 @@ package com.coderschool.vinh.nytimes;
 import android.view.View;
 import android.widget.TextView;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by Vinh on 10/20/2016.
  */
 public class ArticleNoImageViewHolder extends ArticleArrayAdapter.ViewHolder {
 
-    public TextView tvTitle;
-    public TextView tvSnippet;
+    @BindView(R.id.tvTitle) public TextView tvTitle;
+    @BindView(R.id.tvSnippet) public TextView tvSnippet;
+
     public ArticleNoImageViewHolder(View itemView) {
         super(itemView);
-
-        tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
-        tvSnippet = (TextView) itemView.findViewById(R.id.tvSnippet);
+        ButterKnife.bind(this, itemView);
     }
 
 }

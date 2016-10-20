@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
-    <color name="backgroundSearch">#5E706E</color>
+    <color name="colorPrimary">#00CCA8</color>
+    <color name="colorPrimaryDark">#007F69</color>
+    <color name="colorAccent">#00FFD2</color>
+    <color name="windowBackground">#3F7F74</color>
 </resources>

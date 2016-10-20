@@ -4,20 +4,22 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by Vinh on 10/20/2016.
  */
 
 public class ArticleImageViewHolder extends ArticleArrayAdapter.ViewHolder {
 
-    public TextView tvTitle;
-    public ImageView ivImage;
+    @BindView(R.id.tvTitle) public TextView tvTitle;
+    @BindView(R.id.ivImage) public ImageView ivImage;
 
     public ArticleImageViewHolder(View itemView) {
         super(itemView);
-
-        tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
-        ivImage = (ImageView) itemView.findViewById(R.id.ivImage);
+        ButterKnife.bind(this, itemView);
     }
 
 }
+

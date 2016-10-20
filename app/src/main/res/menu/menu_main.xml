@@ -11,7 +11,7 @@
     <item
         android:id="@+id/action_search_filter"
         android:orderInCategory="5"
-        android:icon="@android:drawable/ic_input_add"
+        android:icon="@drawable/ic_filter"
         app:showAsAction="ifRoom"
         android:title="Article Filtering">
     </item>

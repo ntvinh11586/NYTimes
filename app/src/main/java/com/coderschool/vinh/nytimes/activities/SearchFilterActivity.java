@@ -22,26 +22,24 @@ import org.parceler.Parcels;
 
 import java.util.Calendar;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class SearchFilterActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
-    private Calendar currentDate;
+    @BindView(R.id.text_begin_date) TextView tvBeginDate;
+    @BindView(R.id.spinner_sort_order) Spinner spSortOrder;
+    @BindView(R.id.checkbox_arts) CheckBox cbArts;
+    @BindView(R.id.checkbox_fashion_style) CheckBox cbFashionStyle;
+    @BindView(R.id.checkbox_sports) CheckBox cbSports;
 
-    private TextView tvBeginDate;
-    private Spinner spSortOrder;
-    private CheckBox cbArts;
-    private CheckBox cbFashionStyle;
-    private CheckBox cbSports;
+    Calendar currentDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_filter);
-
-        tvBeginDate = (TextView)findViewById(R.id.text_begin_date);
-        spSortOrder = (Spinner)findViewById(R.id.spinner_sort_order);
-        cbArts = (CheckBox)findViewById(R.id.checkbox_arts);
-        cbFashionStyle = (CheckBox)findViewById(R.id.checkbox_fashion_style);
-        cbSports = (CheckBox)findViewById(R.id.checkbox_sports);
+        ButterKnife.bind(this);
 
         ActionBar actionBar = getSupportActionBar(); // or getActionBar();
         getSupportActionBar().setTitle("Article Filtering"); // set the top title

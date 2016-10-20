@@ -13,7 +13,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.coderschool.vinh.nytimes.Article;
 import com.coderschool.vinh.nytimes.ArticleArrayAdapter;
@@ -32,16 +31,19 @@ import org.parceler.Parcels;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 
 public class MainActivity extends AppCompatActivity {
 
-    RecyclerView rvResult;
+    @BindView(R.id.recycle_view_results) RecyclerView rvResult;
 
     ArrayList<Article> articles;
     ArticleArrayAdapter adapter;
 
     String searchQuery = "";
+
     private final int REQUEST_CODE = 1;
 
     private Filter searchFilter;
@@ -50,11 +52,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
         ActionBar actionBar = getSupportActionBar();
         getSupportActionBar().setTitle("NYTimesSearch");
 
-        setupViews();
+        setupRecycleViews();
 
         onArticleSearch(0);
     }
@@ -72,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String query) {
 
                 searchQuery = query;
-                Toast.makeText(MainActivity.this, "ok", Toast.LENGTH_SHORT).show();
 
                 onArticleSearch(0);
 
@@ -83,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
+
                 return false;
             }
         });
@@ -112,9 +115,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void setupViews() {
-        rvResult = (RecyclerView)findViewById(R.id.rvContacts);
-
+    public void setupRecycleViews() {
         articles = new ArrayList<>();
 
         adapter = new ArticleArrayAdapter(this, articles);
@@ -132,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
 
                 onArticleSearch(page);
             }
+
         });
 
 
@@ -149,11 +151,13 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-    public void onArticleSearch(int page) {
+    public void onArticleSearch(final int page) {
         AsyncHttpClient client = new AsyncHttpClient();
         String url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
 
-        final int resultPage = page;
+        if (page == 0) {
+            rvResult.scrollToPosition(0);
+        }
 
         RequestParams params = new RequestParams();
         params.put("api-key", "51065f56d04445baa91280fa70489e8e");
@@ -195,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
                 JSONArray articleJsonResults = null;
 
                 try {
-                    if (resultPage == 0) {
+                    if (page == 0) {
                         articles.clear();
                     }
 
@@ -206,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
                     articles.addAll(Article.fromJSONArray(articleJsonResults));
                     adapter.notifyDataSetChanged();
 
-                    if (resultPage == 0) {
+                    if (page == 0) {
                         rvResult.scrollToPosition(0);
                     }
 

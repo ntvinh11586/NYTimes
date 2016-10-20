@@ -15,21 +15,23 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Begin Date"
         android:id="@+id/textView"
-        android:layout_alignParentTop="true"
+        android:layout_alignBottom="@+id/text_begin_date"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:gravity="center"/>
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/text_begin_date"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
         android:hint="mm/dd/yyyy"
         android:onClick="showCalendar"
-        android:layout_toRightOf="@+id/textView"
-        android:layout_toEndOf="@+id/textView" />
+        android:layout_alignParentTop="true"
+        android:layout_alignLeft="@+id/spinner_sort_order"
+        android:layout_alignStart="@+id/spinner_sort_order"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -39,18 +41,19 @@
         android:layout_below="@+id/text_begin_date"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="32dp" />
+        android:layout_marginTop="32dp"
+        android:layout_alignRight="@+id/textView"
+        android:layout_alignEnd="@+id/textView" />
 
     <Spinner
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/spinner_sort_order"
         android:spinnerMode="dropdown"
+        android:entries="@array/sort_order_array"
         android:layout_alignTop="@+id/textView2"
-        android:layout_toRightOf="@+id/textView2"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:entries="@array/sort_order_array"/>
+        android:layout_alignLeft="@+id/checkbox_sports"
+        android:layout_alignStart="@+id/checkbox_sports" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -60,7 +63,7 @@
         android:layout_below="@+id/spinner_sort_order"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="26dp" />
+        android:layout_marginTop="24dp" />
 
     <CheckBox
         android:layout_width="wrap_content"
@@ -89,5 +92,5 @@
         android:id="@+id/checkbox_sports"
         android:checked="false"
         android:layout_alignTop="@+id/textView3"
-        android:layout_toRightOf="@+id/textView3" />
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>
