@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
@@ -85,7 +85,7 @@ public class ArticleArrayAdapter extends
         String thumbnail = contact.getThumbNail();
 
         if (!TextUtils.isEmpty(thumbnail)) {
-            Picasso.with(getContext()).load(thumbnail).into(viewHolder.ivImage);
+            Glide.with(getContext()).load(thumbnail).into(viewHolder.ivImage);
         }
     }
 
