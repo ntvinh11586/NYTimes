@@ -20,19 +20,18 @@ import java.util.ArrayList;
 public class ArticleArrayAdapter extends
         RecyclerView.Adapter<ArticleArrayAdapter.ViewHolder> {
 
-    // Provide a direct reference to each of the views within a data item
-    // Used to cache the views within the item layout for fast access
+    private final int IMAGE = 0, NO_IMAGE = 1;
+
+    private ArrayList<Article> mArticles;
+
+    private Context mContext;
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        // Your holder should contain a member variable
-        // for any view that will be set as you render a row
+
         public TextView tvTitle;
         public ImageView ivImage;
 
-        // We also create a constructor that accepts the entire item row
-        // and does the view lookups to find each subview
         public ViewHolder(View itemView) {
-            // Stores the itemView in a public final member variable that can be used
-            // to access the context from any ViewHolder instance.
             super(itemView);
 
             tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
@@ -40,58 +39,93 @@ public class ArticleArrayAdapter extends
         }
     }
 
-    // Store a member variable for the contacts
-    private ArrayList<Article> mContacts;
-    // Store the context for easy access
-    private Context mContext;
-
-    // Pass in the contact array into the constructor
     public ArticleArrayAdapter(Context context, ArrayList<Article> contacts) {
-        mContacts = contacts;
+        mArticles = contacts;
         mContext = context;
     }
 
-    // Easy access to the context object in the recyclerview
     private Context getContext() {
         return mContext;
     }
 
-
-
-    // Usually involves inflating a layout from XML and returning the holder
     @Override
     public ArticleArrayAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Context context = parent.getContext();
-        LayoutInflater inflater = LayoutInflater.from(context);
+//        Context context = parent.getContext();
+//        LayoutInflater inflater = LayoutInflater.from(context);
+//
+//        View contactView = inflater.inflate(R.layout.item_article_result_image, parent, false);
+//
+//        ViewHolder viewHolder = new ViewHolder(contactView);
 
-        // Inflate the custom layout
-        View contactView = inflater.inflate(R.layout.item_article_result, parent, false);
+        ArticleArrayAdapter.ViewHolder viewHolder = null;
+        LayoutInflater inflater = LayoutInflater.from(mContext);
 
-        // Return a new holder instance
-        ViewHolder viewHolder = new ViewHolder(contactView);
+        switch (viewType) {
+            case IMAGE:
+                View v1 = inflater.inflate(R.layout.item_article_result_image, parent, false);
+                viewHolder = new ArticleImageViewHolder(v1);
+                break;
+            case NO_IMAGE:
+                View v2 = inflater.inflate(R.layout.item_article_result_no_image, parent, false);
+                viewHolder = new ArticleNoImageViewHolder(v2);
+                break;
+        }
+
         return viewHolder;
     }
 
-    // Involves populating data into the item through holder
     @Override
     public void onBindViewHolder(ArticleArrayAdapter.ViewHolder viewHolder, int position) {
-        // Get the data model based on position
-        Article contact = mContacts.get(position);
 
-        // Set item views based on your views and data model
-        TextView textView = viewHolder.tvTitle;
+        switch (viewHolder.getItemViewType()) {
+            case IMAGE:
+                ArticleImageViewHolder vh1 = (ArticleImageViewHolder) viewHolder;
+                configureViewHolder1(vh1, position);
+                break;
+            case NO_IMAGE:
+                ArticleNoImageViewHolder vh2 = (ArticleNoImageViewHolder) viewHolder;
+                configureViewHolder2(vh2, position);
+                break;
+        }
+    }
+
+    private void configureViewHolder1(ArticleImageViewHolder vh1, int position) {
+        Article contact = mArticles.get(position);
+
+        TextView textView = vh1.tvTitle;
         textView.setText(contact.getHeadline());
 
         String thumbnail = contact.getThumbNail();
 
         if (!TextUtils.isEmpty(thumbnail)) {
-            Glide.with(getContext()).load(thumbnail).into(viewHolder.ivImage);
+            Glide.with(getContext()).load(thumbnail).into(vh1.ivImage);
         }
     }
 
-    // Returns the total count of items in the list
+    private void configureViewHolder2(ArticleNoImageViewHolder vh2, int position) {
+        Article contact = mArticles.get(position);
+
+        TextView textView = vh2.tvTitle;
+        TextView textView1 = vh2.tvSnippet;
+        textView.setText(contact.getHeadline());
+        textView1.setText(contact.getSnippet());
+    }
+
+
+
     @Override
     public int getItemCount() {
-        return mContacts.size();
+        return mArticles.size();
     }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (!mArticles.get(position).thumbNail.equals("")) {
+            return IMAGE;
+        } else {
+            return NO_IMAGE;
+        }
+    }
+
+
 }

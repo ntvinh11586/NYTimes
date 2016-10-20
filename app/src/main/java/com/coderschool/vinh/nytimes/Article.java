@@ -14,30 +14,20 @@ import java.util.ArrayList;
 @Parcel
 public class Article {
 
-    public String getThumbNail() {
-        return thumbNail;
-    }
-
-    public String getHeadline() {
-        return headline;
-    }
+    String webUrl;
+    String headline;
+    String thumbNail;
+    String snippet;
 
     public Article() {
 
     }
 
-    public String getWebUrl() {
-        return webUrl;
-    }
-
-    String webUrl;
-    String headline;
-    String thumbNail;
-
     public Article(JSONObject jsonObject) {
         try {
             this.webUrl = jsonObject.getString("web_url");
             this.headline = jsonObject.getJSONObject("headline").getString("main");
+            this.snippet = jsonObject.getString("snippet");
 
             JSONArray multimedia = jsonObject.getJSONArray("multimedia");
 
@@ -66,5 +56,20 @@ public class Article {
 
         return results;
     }
-}
 
+    public String getThumbNail() {
+        return thumbNail;
+    }
+
+    public String getHeadline() {
+        return headline;
+    }
+
+    public String getWebUrl() {
+        return webUrl;
+    }
+
+    public String getSnippet() {
+        return snippet;
+    }
+}
