@@ -13,6 +13,7 @@ import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.coderschool.vinh.nytimes.DatePickerFragment;
 import com.coderschool.vinh.nytimes.Filter;
@@ -41,20 +42,9 @@ public class SearchFilterActivity extends AppCompatActivity implements DatePicke
         setContentView(R.layout.activity_search_filter);
         ButterKnife.bind(this);
 
-        ActionBar actionBar = getSupportActionBar(); // or getActionBar();
-        getSupportActionBar().setTitle("Article Filtering"); // set the top title
+        ActionBar actionBar = getSupportActionBar();
+        getSupportActionBar().setTitle("Article Filtering");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        currentDate = Calendar.getInstance();
-        String curentday = currentDate.get(currentDate.DAY_OF_MONTH) >= 10 ?
-                String.valueOf(currentDate.get(currentDate.DAY_OF_MONTH)) :
-                (String) "0" + currentDate.get(currentDate.DAY_OF_MONTH);
-        String curentmonth = currentDate.get(currentDate.MONTH) + 1 >= 10 ?
-                String.valueOf(currentDate.get(currentDate.MONTH) + 1) :
-                (String) "0" + (currentDate.get(currentDate.MONTH) + 1);
-        String curentYear = String.valueOf(currentDate.get(currentDate.YEAR));
-
-        tvBeginDate.setText(curentmonth + "/" + curentday +  "/" + curentYear);
 
         cbArts.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,7 +88,6 @@ public class SearchFilterActivity extends AppCompatActivity implements DatePicke
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            // This is the up button
             case android.R.id.home:
                 finish();
                 return true;
@@ -121,9 +110,11 @@ public class SearchFilterActivity extends AppCompatActivity implements DatePicke
                     Intent data = new Intent();
                     data.putExtra("filter", Parcels.wrap(filter));
                     setResult(RESULT_OK, data);
-                }
 
-                finish();
+                    finish();
+                } else {
+                    Toast.makeText(SearchFilterActivity.this, "Please choose begin date", Toast.LENGTH_SHORT).show();
+                }
 
                 return true;
             default:
@@ -131,17 +122,14 @@ public class SearchFilterActivity extends AppCompatActivity implements DatePicke
         }
     }
 
-
-    // attach to an onclick handler to show the date picker
     public void showDatePickerDialog(View v) {
         DatePickerFragment newFragment = new DatePickerFragment();
         newFragment.show(getSupportFragmentManager(), "datePicker");
     }
 
-    // handle the date selected
     @Override
     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-        // store the values selected into a Calendar instance
+
         currentDate = Calendar.getInstance();
         currentDate.set(Calendar.YEAR, year);
         currentDate.set(Calendar.MONTH, monthOfYear);

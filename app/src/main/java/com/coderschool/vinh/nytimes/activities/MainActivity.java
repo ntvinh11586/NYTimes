@@ -37,15 +37,14 @@ import cz.msebera.android.httpclient.Header;
 
 public class MainActivity extends AppCompatActivity {
 
-    @BindView(R.id.recycle_view_results) RecyclerView rvResult;
-
-    ArrayList<Article> articles;
-    ArticleArrayAdapter adapter;
-
-    String searchQuery = "";
-
     private final int REQUEST_CODE = 1;
 
+    @BindView(R.id.recycle_view_results) RecyclerView rvResult;
+
+    private ArrayList<Article> articles;
+    private ArticleArrayAdapter adapter;
+
+    private String searchQuery = "";
     private Filter searchFilter;
 
     @Override
@@ -57,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         getSupportActionBar().setTitle("NYTimesSearch");
 
-        setupRecycleViews();
+        setRecycleView();
 
         onArticleSearch(0);
     }
@@ -73,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-
                 searchQuery = query;
 
                 onArticleSearch(0);
@@ -85,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-
                 return false;
             }
         });
@@ -95,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle presses on the action bar items
         switch (item.getItemId()) {
             case R.id.action_search_filter:
                 Intent i = new Intent(MainActivity.this, SearchFilterActivity.class);
@@ -115,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void setupRecycleViews() {
+    public void setRecycleView() {
         articles = new ArrayList<>();
 
         adapter = new ArticleArrayAdapter(this, articles);
@@ -125,7 +121,6 @@ public class MainActivity extends AppCompatActivity {
                 new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
 
         rvResult.setLayoutManager(gridLayoutManager);
-
 
         rvResult.addOnScrollListener(new EndlessRecyclerViewScrollListener(gridLayoutManager) {
             @Override
@@ -227,3 +222,4 @@ public class MainActivity extends AppCompatActivity {
 
     }
 }
+

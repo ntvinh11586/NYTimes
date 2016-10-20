@@ -10,7 +10,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -18,7 +17,7 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 
 public class ArticleArrayAdapter extends
-        RecyclerView.Adapter<ArticleArrayAdapter.ViewHolder> {
+        RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final int IMAGE = 0, NO_IMAGE = 1;
 
@@ -26,18 +25,6 @@ public class ArticleArrayAdapter extends
 
     private Context mContext;
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-
-        public TextView tvTitle;
-        public ImageView ivImage;
-
-        public ViewHolder(View itemView) {
-            super(itemView);
-
-            tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
-            ivImage = (ImageView) itemView.findViewById(R.id.ivImage);
-        }
-    }
 
     public ArticleArrayAdapter(Context context, ArrayList<Article> contacts) {
         mArticles = contacts;
@@ -49,9 +36,9 @@ public class ArticleArrayAdapter extends
     }
 
     @Override
-    public ArticleArrayAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        ArticleArrayAdapter.ViewHolder viewHolder = null;
+        RecyclerView.ViewHolder viewHolder = null;
         LayoutInflater inflater = LayoutInflater.from(mContext);
 
         switch (viewType) {
@@ -69,7 +56,7 @@ public class ArticleArrayAdapter extends
     }
 
     @Override
-    public void onBindViewHolder(ArticleArrayAdapter.ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
 
         switch (viewHolder.getItemViewType()) {
             case IMAGE:
@@ -106,8 +93,6 @@ public class ArticleArrayAdapter extends
         textView1.setText(contact.getSnippet());
     }
 
-
-
     @Override
     public int getItemCount() {
         return mArticles.size();
@@ -115,12 +100,11 @@ public class ArticleArrayAdapter extends
 
     @Override
     public int getItemViewType(int position) {
-        if (!mArticles.get(position).thumbNail.equals("")) {
+        if (!mArticles.get(position).getThumbNail().equals("")) {
             return IMAGE;
         } else {
             return NO_IMAGE;
         }
     }
-
 
 }

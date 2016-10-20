@@ -16,6 +16,9 @@ import com.coderschool.vinh.nytimes.R;
 
 import org.parceler.Parcels;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class ArticleActivity extends AppCompatActivity {
 
     @BindView(R.id.wvArticle) WebView webView;
