@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.coderschool.vinh.nytimes.Article;
 import com.coderschool.vinh.nytimes.ArticleArrayAdapter;
+import com.coderschool.vinh.nytimes.Filter;
 import com.coderschool.vinh.nytimes.ItemClickSupport;
 import com.coderschool.vinh.nytimes.R;
 import com.loopj.android.http.AsyncHttpClient;
@@ -26,6 +27,7 @@ import com.loopj.android.http.RequestParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 
@@ -39,6 +41,9 @@ public class MainActivity extends AppCompatActivity {
     ArticleArrayAdapter adapter;
 
     String searchQuery = "";
+    private final int REQUEST_CODE = 1;
+
+    private Filter searchFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
 
         onArticleSearch();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -85,6 +89,28 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.action_search_filter:
+                Intent i = new Intent(MainActivity.this, SearchFilterActivity.class);
+                startActivityForResult(i, REQUEST_CODE);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+            searchFilter = (Filter) Parcels.unwrap(data.getParcelableExtra("filter"));
+            onArticleSearch();
+        }
+    }
+
     public void setupViews() {
         rvResult = (RecyclerView)findViewById(R.id.rvContacts);
 
@@ -102,12 +128,10 @@ public class MainActivity extends AppCompatActivity {
                 new ItemClickSupport.OnItemClickListener() {
                     @Override
                     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                        Intent i = new Intent(getApplicationContext(), ArticleActivity.class);
-
                         Article article = articles.get(position);
 
+                        Intent i = new Intent(getApplicationContext(), ArticleActivity.class);
                         i.putExtra("article", article);
-
                         startActivity(i);
                     }
                 }
@@ -115,9 +139,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onArticleSearch() {
-
-
-
         AsyncHttpClient client = new AsyncHttpClient();
         String url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
 
@@ -125,26 +146,51 @@ public class MainActivity extends AppCompatActivity {
         params.put("api-key", "51065f56d04445baa91280fa70489e8e");
         params.put("page", 0);
 
+        if (searchFilter != null) {
+            String day = searchFilter.day >= 10 ?
+                    String.valueOf(searchFilter.day) :
+                    "0" + String.valueOf(searchFilter.day);
+            String month = searchFilter.month >= 10 ?
+                    String.valueOf(searchFilter.month) :
+                    "0" + String.valueOf(searchFilter.month);
+            String year = String.valueOf(searchFilter.year);
+            params.put("begin_date", year + month + day);
+
+            if (searchFilter.sortOrder.equals("Newest")) {
+                params.put("sort", "newest");
+            } else if (searchFilter.sortOrder.equals("Oldest")) {
+                params.put("sort", "oldest");
+            }
+
+            if (searchFilter.isArts == 1) {
+                params.put("fq", "news_desk:(\"Arts\")");
+            } else if (searchFilter.isFashionStyle == 1) {
+                params.put("fq", "news_desk:(\"Fashion & Style\")");
+            } else if (searchFilter.isSports == 1) {
+                params.put("fq", "news_desk:(\"Sports\")");
+            }
+        }
+
         if (!searchQuery.equals(""))
             params.put("q", searchQuery);
 
         client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-//                Toast.makeText(MainActivity.this, "OK", Toast.LENGTH_SHORT).show();
+
                 Log.d("DEBUG", response.toString());
                 JSONArray articleJsonResults = null;
 
                 try {
-//                    adapter.clear();
                     articles.clear();
                     adapter.notifyDataSetChanged();
+
                     articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
-//                    adapter.addAll(Article.fromJSONArray(articleJsonResults));
-//                    adapter.notifyDataSetChanged();
+
                     articles.addAll(Article.fromJSONArray(articleJsonResults));
                     adapter.notifyDataSetChanged();
-                    Log.d("DEBUG", articles.toString());
+                    rvResult.scrollToPosition(0);
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -152,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                Toast.makeText(MainActivity.this, res.toString(), Toast.LENGTH_SHORT).show();
+
             }
         });
 
