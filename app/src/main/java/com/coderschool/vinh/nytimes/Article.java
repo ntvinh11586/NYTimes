@@ -3,15 +3,16 @@ package com.coderschool.vinh.nytimes;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcel;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by Vinh on 10/18/2016.
  */
 
-public class Article implements Serializable {
+@Parcel
+public class Article {
 
     public String getThumbNail() {
         return thumbNail;
@@ -19,6 +20,10 @@ public class Article implements Serializable {
 
     public String getHeadline() {
         return headline;
+    }
+
+    public Article() {
+
     }
 
     public String getWebUrl() {

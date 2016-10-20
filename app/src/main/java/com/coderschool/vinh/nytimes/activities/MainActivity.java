@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
                         Article article = articles.get(position);
 
                         Intent i = new Intent(getApplicationContext(), ArticleActivity.class);
-                        i.putExtra("article", article);
+                        i.putExtra("article", Parcels.wrap(article));
                         startActivity(i);
                     }
                 }
