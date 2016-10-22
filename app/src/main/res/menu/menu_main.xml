@@ -3,16 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_search"
+        android:icon="@android:drawable/ic_menu_search"
         android:orderInCategory="4"
         android:title="Search"
-        android:icon="@android:drawable/ic_menu_search"
-        app:showAsAction="always"
-        app:actionViewClass="android.support.v7.widget.SearchView" />
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        app:showAsAction="always" />
     <item
         android:id="@+id/action_search_filter"
-        android:orderInCategory="5"
         android:icon="@drawable/ic_filter"
-        app:showAsAction="ifRoom"
-        android:title="Article Filtering">
-    </item>
+        android:orderInCategory="5"
+        android:title="Article Filtering"
+        app:showAsAction="ifRoom" />
 </menu>

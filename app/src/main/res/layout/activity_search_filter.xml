@@ -10,87 +10,87 @@
     tools:context=".activities.SearchFilterActivity">
 
     <TextView
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Begin Date"
-        android:id="@+id/textView"
         android:layout_alignBottom="@+id/text_begin_date"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:text="Begin Date"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <EditText
+        android:id="@+id/text_begin_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/text_begin_date"
-        android:hint="mm/dd/yyyy"
-        android:onClick="showCalendar"
-        android:layout_alignParentTop="true"
         android:layout_alignLeft="@+id/spinner_sort_order"
-        android:layout_alignStart="@+id/spinner_sort_order"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/spinner_sort_order"
+        android:hint="mm/dd/yyyy"
+        android:onClick="showCalendar" />
 
     <TextView
+        android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sort Order"
-        android:id="@+id/textView2"
-        android:layout_below="@+id/text_begin_date"
+        android:layout_alignEnd="@+id/textView"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="32dp"
         android:layout_alignRight="@+id/textView"
-        android:layout_alignEnd="@+id/textView" />
+        android:layout_below="@+id/text_begin_date"
+        android:layout_marginTop="32dp"
+        android:text="Sort Order" />
 
     <Spinner
+        android:id="@+id/spinner_sort_order"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/spinner_sort_order"
-        android:spinnerMode="dropdown"
-        android:entries="@array/sort_order_array"
-        android:layout_alignTop="@+id/textView2"
         android:layout_alignLeft="@+id/checkbox_sports"
-        android:layout_alignStart="@+id/checkbox_sports" />
+        android:layout_alignStart="@+id/checkbox_sports"
+        android:layout_alignTop="@+id/textView2"
+        android:entries="@array/sort_order_array"
+        android:spinnerMode="dropdown" />
 
     <TextView
+        android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="News Desk Values"
-        android:id="@+id/textView3"
-        android:layout_below="@+id/spinner_sort_order"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="24dp" />
+        android:layout_below="@+id/spinner_sort_order"
+        android:layout_marginTop="24dp"
+        android:text="News Desk Values" />
 
     <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Arts"
         android:id="@+id/checkbox_arts"
-        android:checked="false"
-        android:layout_below="@+id/checkbox_fashion_style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/checkbox_fashion_style"
-        android:layout_alignStart="@+id/checkbox_fashion_style" />
+        android:layout_alignStart="@+id/checkbox_fashion_style"
+        android:layout_below="@+id/checkbox_fashion_style"
+        android:checked="false"
+        android:text="Arts" />
 
     <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Fashion &amp; Style"
         android:id="@+id/checkbox_fashion_style"
-        android:checked="false"
-        android:layout_below="@+id/checkbox_sports"
-        android:layout_alignLeft="@+id/checkbox_sports"
-        android:layout_alignStart="@+id/checkbox_sports" />
-
-    <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sports"
-        android:id="@+id/checkbox_sports"
+        android:layout_alignLeft="@+id/checkbox_sports"
+        android:layout_alignStart="@+id/checkbox_sports"
+        android:layout_below="@+id/checkbox_sports"
         android:checked="false"
+        android:text="Fashion &amp; Style" />
+
+    <CheckBox
+        android:id="@+id/checkbox_sports"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignTop="@+id/textView3"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:checked="false"
+        android:text="Sports" />
 </RelativeLayout>

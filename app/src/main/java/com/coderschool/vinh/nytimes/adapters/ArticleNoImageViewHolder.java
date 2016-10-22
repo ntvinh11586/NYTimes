@@ -14,10 +14,12 @@ import butterknife.ButterKnife;
  */
 public class ArticleNoImageViewHolder extends RecyclerView.ViewHolder {
 
-    @BindView(R.id.tvTitle) public TextView tvTitle;
-    @BindView(R.id.tvSnippet) public TextView tvSnippet;
+    @BindView(R.id.tvTitle)
+    TextView tvTitle;
+    @BindView(R.id.tvSnippet)
+    TextView tvSnippet;
 
-    public ArticleNoImageViewHolder(View itemView) {
+    ArticleNoImageViewHolder(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
     }

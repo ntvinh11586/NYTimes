@@ -19,12 +19,9 @@ public class Filter {
     public int isSports;
 
     public Filter() {
-
     }
 
-    public Filter(int day, int month, int year,
-                  String sortOrder,
-                  int isArts, int isFashionStyle, int isSports){
+    public Filter(int day, int month, int year, String sortOrder, int isArts, int isFashionStyle, int isSports) {
         this.day = day;
         this.month = month;
         this.year = year;

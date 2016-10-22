@@ -1,6 +1,8 @@
 package com.coderschool.vinh.nytimes.activities;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -8,11 +10,12 @@ import android.support.v7.widget.ShareActionProvider;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.coderschool.vinh.nytimes.models.Article;
 import com.coderschool.vinh.nytimes.R;
+import com.coderschool.vinh.nytimes.models.Article;
 
 import org.parceler.Parcels;
 
@@ -21,7 +24,8 @@ import butterknife.ButterKnife;
 
 public class ArticleActivity extends AppCompatActivity {
 
-    @BindView(R.id.wvArticle) WebView webView;
+    @BindView(R.id.wvArticle)
+    WebView webView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,13 +33,20 @@ public class ArticleActivity extends AppCompatActivity {
         setContentView(R.layout.activity_article);
         ButterKnife.bind(this);
 
-        Article article = (Article) Parcels.unwrap(getIntent().getParcelableExtra("article"));
+        Article article = Parcels.unwrap(getIntent().getParcelableExtra("article"));
 
         webView.setWebViewClient(new WebViewClient() {
-            @Override
             @SuppressWarnings("deprecation")
+            @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 view.loadUrl(url);
+                return true;
+            }
+
+            @TargetApi(Build.VERSION_CODES.N)
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                view.loadUrl(request.getUrl().toString());
                 return true;
             }
         });

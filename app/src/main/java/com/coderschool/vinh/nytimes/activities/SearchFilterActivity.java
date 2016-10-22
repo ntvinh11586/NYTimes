@@ -28,11 +28,16 @@ import butterknife.ButterKnife;
 
 public class SearchFilterActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
-    @BindView(R.id.text_begin_date) TextView tvBeginDate;
-    @BindView(R.id.spinner_sort_order) Spinner spSortOrder;
-    @BindView(R.id.checkbox_arts) CheckBox cbArts;
-    @BindView(R.id.checkbox_fashion_style) CheckBox cbFashionStyle;
-    @BindView(R.id.checkbox_sports) CheckBox cbSports;
+    @BindView(R.id.text_begin_date)
+    TextView tvBeginDate;
+    @BindView(R.id.spinner_sort_order)
+    Spinner spSortOrder;
+    @BindView(R.id.checkbox_arts)
+    CheckBox cbArts;
+    @BindView(R.id.checkbox_fashion_style)
+    CheckBox cbFashionStyle;
+    @BindView(R.id.checkbox_sports)
+    CheckBox cbSports;
 
     Calendar currentDate;
 
@@ -95,9 +100,9 @@ public class SearchFilterActivity extends AppCompatActivity implements DatePicke
 
                 if (currentDate != null) {
 
-                    int day = currentDate.get(currentDate.DAY_OF_MONTH);
-                    int month = currentDate.get(currentDate.MONTH) + 1;
-                    int year = currentDate.get(currentDate.YEAR);
+                    int day = currentDate.get(Calendar.DAY_OF_MONTH);
+                    int month = currentDate.get(Calendar.MONTH) + 1;
+                    int year = currentDate.get(Calendar.YEAR);
 
                     String sortOrder = spSortOrder.getSelectedItem().toString();
 
@@ -129,21 +134,20 @@ public class SearchFilterActivity extends AppCompatActivity implements DatePicke
 
     @Override
     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-
         currentDate = Calendar.getInstance();
         currentDate.set(Calendar.YEAR, year);
         currentDate.set(Calendar.MONTH, monthOfYear);
         currentDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-        String curentday = currentDate.get(currentDate.DAY_OF_MONTH) >= 10 ?
-                String.valueOf(currentDate.get(currentDate.DAY_OF_MONTH)) :
-                (String) "0" + currentDate.get(currentDate.DAY_OF_MONTH);
-        String curentmonth = currentDate.get(currentDate.MONTH) + 1 >= 10 ?
-                String.valueOf(currentDate.get(currentDate.MONTH) + 1) :
-                (String) "0" + (currentDate.get(currentDate.MONTH) + 1);
-        String curentYear = String.valueOf(currentDate.get(currentDate.YEAR));
+        String currentDay = currentDate.get(Calendar.DAY_OF_MONTH) >= 10 ?
+                String.valueOf(currentDate.get(Calendar.DAY_OF_MONTH)) :
+                "0" + currentDate.get(Calendar.DAY_OF_MONTH);
+        String currentMonth = currentDate.get(Calendar.MONTH) + 1 >= 10 ?
+                String.valueOf(currentDate.get(Calendar.MONTH) + 1) :
+                "0" + (currentDate.get(Calendar.MONTH) + 1);
+        String currentYear = String.valueOf(currentDate.get(Calendar.YEAR));
 
-        tvBeginDate.setText(curentmonth + "/" + curentday +  "/" + curentYear);
+        tvBeginDate.setText(currentMonth + "/" + currentDay + "/" + currentYear);
     }
 
     public void showCalendar(View view) {

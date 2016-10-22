@@ -3,23 +3,22 @@ package com.coderschool.vinh.nytimes.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.coderschool.vinh.nytimes.models.Article;
-import com.coderschool.vinh.nytimes.adapters.ArticleArrayAdapter;
-import com.coderschool.vinh.nytimes.utils.EndlessRecyclerViewScrollListener;
-import com.coderschool.vinh.nytimes.models.Filter;
-import com.coderschool.vinh.nytimes.utils.ItemClickSupport;
 import com.coderschool.vinh.nytimes.R;
+import com.coderschool.vinh.nytimes.adapters.ArticleArrayAdapter;
+import com.coderschool.vinh.nytimes.models.Article;
+import com.coderschool.vinh.nytimes.models.Filter;
+import com.coderschool.vinh.nytimes.utils.Constant;
+import com.coderschool.vinh.nytimes.utils.EndlessRecyclerViewScrollListener;
+import com.coderschool.vinh.nytimes.utils.ItemClickSupport;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -39,7 +38,9 @@ public class MainActivity extends AppCompatActivity {
 
     private final int REQUEST_CODE = 1;
 
-    @BindView(R.id.recycle_view_results) RecyclerView rvResult;
+    @BindView(R.id.recycle_view_results)
+    RecyclerView rvResult;
+    SearchView searchView;
 
     private ArrayList<Article> articles;
     private ArticleArrayAdapter adapter;
@@ -52,32 +53,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
-        ActionBar actionBar = getSupportActionBar();
-        getSupportActionBar().setTitle("NYTimesSearch");
-
         setRecycleView();
-
         onArticleSearch(0);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
-        MenuItem searchItem = menu.findItem(R.id.action_search);
-        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
 
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchItem.expandActionView();
+        searchView.requestFocus();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 searchQuery = query;
-
                 onArticleSearch(0);
-
                 searchView.clearFocus();
-
                 return true;
             }
 
@@ -106,41 +100,34 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
-            searchFilter = (Filter) Parcels.unwrap(data.getParcelableExtra("filter"));
+            searchFilter = Parcels.unwrap(data.getParcelableExtra("filter"));
             onArticleSearch(0);
         }
     }
 
     public void setRecycleView() {
         articles = new ArrayList<>();
-
         adapter = new ArticleArrayAdapter(this, articles);
         rvResult.setAdapter(adapter);
 
         StaggeredGridLayoutManager gridLayoutManager =
                 new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-
         rvResult.setLayoutManager(gridLayoutManager);
-
         rvResult.addOnScrollListener(new EndlessRecyclerViewScrollListener(gridLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount) {
-
                 onArticleSearch(page);
             }
 
         });
 
-
         ItemClickSupport.addTo(rvResult).setOnItemClickListener(
                 new ItemClickSupport.OnItemClickListener() {
                     @Override
                     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                        Article article = articles.get(position);
-
-                        Intent i = new Intent(getApplicationContext(), ArticleActivity.class);
-                        i.putExtra("article", Parcels.wrap(article));
-                        startActivity(i);
+                        Intent intent = new Intent(getApplicationContext(), ArticleActivity.class);
+                        intent.putExtra("article", Parcels.wrap(articles.get(position)));
+                        startActivity(intent);
                     }
                 }
         );
@@ -148,14 +135,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void onArticleSearch(final int page) {
         AsyncHttpClient client = new AsyncHttpClient();
-        String url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
-
         if (page == 0) {
             rvResult.scrollToPosition(0);
         }
 
         RequestParams params = new RequestParams();
-        params.put("api-key", "51065f56d04445baa91280fa70489e8e");
+        params.put("api-key", Constant.API_KEY);
         params.put("page", page);
 
         if (searchFilter != null) {
@@ -186,29 +171,22 @@ public class MainActivity extends AppCompatActivity {
         if (!searchQuery.equals(""))
             params.put("q", searchQuery);
 
-        client.get(url, params, new JsonHttpResponseHandler() {
+        client.get(Constant.ARTICLE_SEARCH, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-
-                Log.d("DEBUG", response.toString());
-                JSONArray articleJsonResults = null;
+                JSONArray articleJsonResults;
 
                 try {
                     if (page == 0) {
                         articles.clear();
                     }
-
                     adapter.notifyDataSetChanged();
-
                     articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
-
                     articles.addAll(Article.fromJSONArray(articleJsonResults));
                     adapter.notifyDataSetChanged();
-
                     if (page == 0) {
                         rvResult.scrollToPosition(0);
                     }
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -219,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
     }
+
 }
 
