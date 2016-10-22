@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.customtabs.CustomTabsIntent;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +20,7 @@ import android.view.View;
 
 import com.coderschool.vinh.nytimes.R;
 import com.coderschool.vinh.nytimes.adapters.ArticleArrayAdapter;
+import com.coderschool.vinh.nytimes.fragments.FilterDialogFragment;
 import com.coderschool.vinh.nytimes.models.Article;
 import com.coderschool.vinh.nytimes.models.Filter;
 import com.coderschool.vinh.nytimes.utils.Constant;
@@ -31,7 +33,6 @@ import com.loopj.android.http.RequestParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.parceler.Parcels;
 
 import java.util.ArrayList;
 
@@ -39,7 +40,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FilterDialogFragment.FilterDialogListener {
 
     private final int REQUEST_CODE = 1;
 
@@ -93,20 +94,12 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_search_filter:
-                Intent i = new Intent(MainActivity.this, SearchFilterActivity.class);
-                startActivityForResult(i, REQUEST_CODE);
+                FragmentManager fm = getSupportFragmentManager();
+                FilterDialogFragment filterDialogFragment = FilterDialogFragment.newInstance();
+                filterDialogFragment.show(fm, "fragment_search_filter");
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
-            searchFilter = Parcels.unwrap(data.getParcelableExtra("filter"));
-            onArticleSearch(0);
         }
     }
 
@@ -225,5 +218,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onFinishFilterDialog(Filter filter) {
+        searchFilter = filter;
+        onArticleSearch(0);
+    }
 }
 
