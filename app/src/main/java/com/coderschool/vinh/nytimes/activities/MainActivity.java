@@ -1,6 +1,8 @@
 package com.coderschool.vinh.nytimes.activities;
 
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.customtabs.CustomTabsIntent;
@@ -128,12 +130,30 @@ public class MainActivity extends AppCompatActivity {
                 new ItemClickSupport.OnItemClickListener() {
                     @Override
                     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                        PendingIntent pendingIntent = getShareIntentAction(
+                                articles.get(position).getWebUrl());
+
                         CustomTabsIntent.Builder customTabsIntent = new CustomTabsIntent.Builder();
                         customTabsIntent.setToolbarColor(
                                 ContextCompat.getColor(getBaseContext(), R.color.colorPrimary))
-                                .addDefaultShareMenuItem()
-                                .build().launchUrl(MainActivity.this,
-                                Uri.parse(articles.get(position).getWebUrl()));
+                                .setActionButton(BitmapFactory.decodeResource(
+                                        getResources(), R.drawable.ic_filter),
+                                        "Share Link", pendingIntent, true)
+                                .build()
+                                .launchUrl(MainActivity.this,
+                                        Uri.parse(articles.get(position).getWebUrl()));
+                    }
+
+                    PendingIntent getShareIntentAction(String url) {
+                        Intent intent = new Intent(Intent.ACTION_SEND);
+                        intent.setType("text/plain");
+                        intent.putExtra(Intent.EXTRA_TEXT, url);
+                        int requestCode = 100;
+
+                        return PendingIntent.getActivity(getBaseContext(),
+                                requestCode,
+                                intent,
+                                PendingIntent.FLAG_UPDATE_CURRENT);
                     }
                 }
         );
