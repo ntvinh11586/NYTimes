@@ -1,7 +1,10 @@
 package com.coderschool.vinh.nytimes.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.customtabs.CustomTabsIntent;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -125,9 +128,12 @@ public class MainActivity extends AppCompatActivity {
                 new ItemClickSupport.OnItemClickListener() {
                     @Override
                     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                        Intent intent = new Intent(getApplicationContext(), ArticleActivity.class);
-                        intent.putExtra("article", Parcels.wrap(articles.get(position)));
-                        startActivity(intent);
+                        CustomTabsIntent.Builder customTabsIntent = new CustomTabsIntent.Builder();
+                        customTabsIntent.setToolbarColor(
+                                ContextCompat.getColor(getBaseContext(), R.color.colorPrimary))
+                                .addDefaultShareMenuItem()
+                                .build().launchUrl(MainActivity.this,
+                                Uri.parse(articles.get(position).getWebUrl()));
                     }
                 }
         );
