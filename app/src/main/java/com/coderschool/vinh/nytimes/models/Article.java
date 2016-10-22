@@ -1,4 +1,4 @@
-package com.coderschool.vinh.nytimes;
+package com.coderschool.vinh.nytimes.models;
 
 import org.json.JSONArray;
 import org.json.JSONException;

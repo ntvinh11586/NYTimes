@@ -11,7 +11,7 @@ import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.coderschool.vinh.nytimes.Article;
+import com.coderschool.vinh.nytimes.models.Article;
 import com.coderschool.vinh.nytimes.R;
 
 import org.parceler.Parcels;

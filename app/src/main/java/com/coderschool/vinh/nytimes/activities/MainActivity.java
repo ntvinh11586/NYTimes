@@ -14,11 +14,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.coderschool.vinh.nytimes.Article;
-import com.coderschool.vinh.nytimes.ArticleArrayAdapter;
-import com.coderschool.vinh.nytimes.EndlessRecyclerViewScrollListener;
-import com.coderschool.vinh.nytimes.Filter;
-import com.coderschool.vinh.nytimes.ItemClickSupport;
+import com.coderschool.vinh.nytimes.models.Article;
+import com.coderschool.vinh.nytimes.adapters.ArticleArrayAdapter;
+import com.coderschool.vinh.nytimes.utils.EndlessRecyclerViewScrollListener;
+import com.coderschool.vinh.nytimes.models.Filter;
+import com.coderschool.vinh.nytimes.utils.ItemClickSupport;
 import com.coderschool.vinh.nytimes.R;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;

@@ -1,7 +1,9 @@
-package com.coderschool.vinh.nytimes;
+package com.coderschool.vinh.nytimes.utils;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+
+import com.coderschool.vinh.nytimes.R;
 
 /**
  * Created by Vinh on 10/20/2016.

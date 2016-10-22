@@ -15,8 +15,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.coderschool.vinh.nytimes.DatePickerFragment;
-import com.coderschool.vinh.nytimes.Filter;
+import com.coderschool.vinh.nytimes.fragments.DatePickerFragment;
+import com.coderschool.vinh.nytimes.models.Filter;
 import com.coderschool.vinh.nytimes.R;
 
 import org.parceler.Parcels;

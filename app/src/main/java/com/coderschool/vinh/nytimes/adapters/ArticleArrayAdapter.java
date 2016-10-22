@@ -1,4 +1,4 @@
-package com.coderschool.vinh.nytimes;
+package com.coderschool.vinh.nytimes.adapters;
 
 /**
  * Created by Vinh on 10/20/2016.
@@ -13,6 +13,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.coderschool.vinh.nytimes.models.Article;
+import com.coderschool.vinh.nytimes.R;
 
 import java.util.ArrayList;
 
