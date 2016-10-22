@@ -1,9 +1,16 @@
 package com.coderschool.vinh.nytimes.activities;
 
+import android.annotation.TargetApi;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.VectorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.FragmentManager;
@@ -129,13 +136,34 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
                         CustomTabsIntent.Builder customTabsIntent = new CustomTabsIntent.Builder();
                         customTabsIntent.setToolbarColor(
                                 ContextCompat.getColor(getBaseContext(), R.color.colorPrimary))
-                                .setActionButton(BitmapFactory.decodeResource(
-                                        getResources(), R.drawable.ic_filter),
+                                .setActionButton(getBitmap(getBaseContext(), R.drawable.ic_menu_share),
                                         "Share Link", pendingIntent, true)
                                 .build()
                                 .launchUrl(MainActivity.this,
                                         Uri.parse(articles.get(position).getWebUrl()));
                     }
+
+                    private Bitmap getBitmap(Context context, int drawableId) {
+                        Drawable drawable = ContextCompat.getDrawable(context, drawableId);
+                        if (drawable instanceof BitmapDrawable) {
+                            return ((BitmapDrawable) drawable).getBitmap();
+                        } else if (drawable instanceof VectorDrawable) {
+                            return getBitmap((VectorDrawable) drawable);
+                        } else {
+                            throw new IllegalArgumentException("unsupported drawable type");
+                        }
+                    }
+
+                    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+                    private Bitmap getBitmap(VectorDrawable vectorDrawable) {
+                        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
+                                vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+                        Canvas canvas = new Canvas(bitmap);
+                        vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+                        vectorDrawable.draw(canvas);
+                        return bitmap;
+                    }
+
 
                     PendingIntent getShareIntentAction(String url) {
                         Intent intent = new Intent(Intent.ACTION_SEND);

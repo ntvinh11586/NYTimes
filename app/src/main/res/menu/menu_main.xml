@@ -10,7 +10,7 @@
         app:showAsAction="always" />
     <item
         android:id="@+id/action_search_filter"
-        android:icon="@drawable/ic_filter"
+        android:icon="@drawable/ic_menu_filter"
         android:orderInCategory="5"
         android:title="Article Filtering"
         app:showAsAction="ifRoom" />
