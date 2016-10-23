@@ -24,6 +24,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.coderschool.vinh.nytimes.R;
 import com.coderschool.vinh.nytimes.adapters.ArticleArrayAdapter;
@@ -33,6 +35,7 @@ import com.coderschool.vinh.nytimes.models.Article;
 import com.coderschool.vinh.nytimes.models.Filter;
 import com.coderschool.vinh.nytimes.models.SearchResult;
 import com.coderschool.vinh.nytimes.utils.ItemClickSupport;
+import com.coderschool.vinh.nytimes.utils.NetworkHelper;
 import com.coderschool.vinh.nytimes.utils.RetrofitUtils;
 
 import java.util.ArrayList;
@@ -52,6 +55,10 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
 
     @BindView(R.id.recycle_view_results)
     RecyclerView rvResult;
+    @BindView(R.id.pbLoadMore)
+    ProgressBar pbLoadMore;
+    @BindView(R.id.pbLoading)
+    ProgressBar pbLoading;
     SearchView searchView;
 
     private ArrayList<Article> articles;
@@ -75,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
         mArticleApi = RetrofitUtils.getArticle().create(ArticleApi.class);
 
         page = 0;
+        pbLoading.setVisibility(View.VISIBLE);
         search();
     }
 
@@ -112,21 +120,28 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
             }
         }
 
-        fetchArticles(map, searchResult -> {
+        if (NetworkHelper.isNetworkAvailable(getBaseContext()) && NetworkHelper.isOnline()) {
+            fetchArticles(map, searchResult -> {
 
-            if (searchResult != null) {
-                List<Article> articlesResult = searchResult.getArticles();
-                if (page == 0) {
-                    articles.clear();
+                if (searchResult != null) {
+                    List<Article> articlesResult = searchResult.getArticles();
+                    if (page == 0) {
+                        articles.clear();
+                    }
+                    adapter.notifyDataSetChanged();
+                    articles.addAll(articlesResult);
+                    if (page == 0) {
+                        rvResult.scrollToPosition(0);
+                    }
+                    adapter.notifyDataSetChanged();
                 }
-                adapter.notifyDataSetChanged();
-                articles.addAll(articlesResult);
-                if (page == 0) {
-                    rvResult.scrollToPosition(0);
-                }
-                adapter.notifyDataSetChanged();
-            }
-        });
+            });
+        } else {
+            Toast.makeText(this, "Offline", Toast.LENGTH_LONG).show();
+            pbLoadMore.setVisibility(View.GONE);
+            pbLoading.setVisibility(View.GONE);
+        }
+
     }
 
     private void fetchArticles(Map<String, String> map, Listener listener) {
@@ -136,6 +151,8 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
             @Override
             public void onResponse(Call<SearchResult> call, Response<SearchResult> response) {
                 listener.onResult(response.body());
+                pbLoadMore.setVisibility(View.GONE);
+                pbLoading.setVisibility(View.GONE);
             }
 
             @Override
@@ -154,11 +171,18 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
         searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         searchItem.expandActionView();
         searchView.requestFocus();
+        searchView.setOnCloseListener(() -> {
+            searchQuery = "";
+            return false;
+        });
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 searchQuery = query;
                 page = 0;
+                pbLoading.setVisibility(View.VISIBLE);
+                articles.clear();
+                adapter.notifyDataSetChanged();
                 search();
                 searchView.clearFocus();
                 return true;
@@ -191,6 +215,7 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
         adapter = new ArticleArrayAdapter(this, articles);
         rvResult.setAdapter(adapter);
         adapter.setListener(() -> {
+            pbLoadMore.setVisibility(View.VISIBLE);
             page++;
             search();
         });
@@ -256,6 +281,9 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
     public void onFinishFilterDialog(Filter filter) {
         searchFilter = filter;
         page = 0;
+        pbLoading.setVisibility(View.VISIBLE);
+        articles.clear();
+        adapter.notifyDataSetChanged();
         search();
     }
 }
