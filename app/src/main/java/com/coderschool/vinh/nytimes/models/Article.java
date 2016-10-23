@@ -1,13 +1,10 @@
 package com.coderschool.vinh.nytimes.models;
 
-import com.coderschool.vinh.nytimes.utils.Constant;
+import com.google.gson.annotations.SerializedName;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.parceler.Parcel;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Vinh on 10/18/2016.
@@ -16,20 +13,52 @@ import java.util.ArrayList;
 @Parcel
 public class Article {
 
+    @SerializedName("web_url")
     String webUrl;
-    String headline;
-    String thumbNail;
-    String snippet;
 
-    public Article() {
+
+    @SerializedName("headline")
+    Headline headline;
+
+    @SerializedName("multimedia")
+    List<Multimedia> multimedia;
+
+    @Parcel
+    public static class Multimedia {
+
+        @SerializedName("url")
+        String url;
+
+        public String getUrl() {
+            return url;
+        }
     }
 
-    public String getThumbNail() {
-        return thumbNail;
+    @Parcel
+    public static class Headline {
+
+        @SerializedName("main")
+        String main;
+
+        public String getHeadline() {
+            return main;
+        }
     }
 
     public String getHeadline() {
-        return headline;
+        return headline.getHeadline();
+    }
+
+    public List<Multimedia> getMultimedia() {
+        return multimedia;
+    }
+
+    String thumbNail;
+
+    @SerializedName("snippet")
+    String snippet;
+
+    public Article() {
     }
 
     public String getWebUrl() {
@@ -38,39 +67,5 @@ public class Article {
 
     public String getSnippet() {
         return snippet;
-    }
-
-    public Article(JSONObject jsonObject) {
-        try {
-            this.webUrl = jsonObject.getString("web_url");
-            this.headline = jsonObject.getJSONObject("headline").getString("main");
-            this.snippet = jsonObject.getString("snippet");
-
-            JSONArray multimedia = jsonObject.getJSONArray("multimedia");
-
-            if (multimedia.length() > 0) {
-                JSONObject multimediaJson = multimedia.getJSONObject(0);
-                this.thumbNail = Constant.BASE_URL + multimediaJson.getString("url");
-            } else {
-                this.thumbNail = "";
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static ArrayList<Article> fromJSONArray(JSONArray array) {
-        ArrayList<Article> results = new ArrayList<>();
-
-        for (int i = 0; i < array.length(); i++) {
-            try {
-                results.add(new Article(array.getJSONObject(i)));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return results;
     }
 }

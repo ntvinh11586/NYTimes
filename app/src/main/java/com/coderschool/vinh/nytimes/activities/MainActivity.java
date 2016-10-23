@@ -27,25 +27,24 @@ import android.view.View;
 
 import com.coderschool.vinh.nytimes.R;
 import com.coderschool.vinh.nytimes.adapters.ArticleArrayAdapter;
+import com.coderschool.vinh.nytimes.api.ArticleApi;
 import com.coderschool.vinh.nytimes.fragments.FilterDialogFragment;
 import com.coderschool.vinh.nytimes.models.Article;
 import com.coderschool.vinh.nytimes.models.Filter;
-import com.coderschool.vinh.nytimes.utils.Constant;
-import com.coderschool.vinh.nytimes.utils.EndlessRecyclerViewScrollListener;
+import com.coderschool.vinh.nytimes.models.SearchResult;
 import com.coderschool.vinh.nytimes.utils.ItemClickSupport;
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.coderschool.vinh.nytimes.utils.RetrofitUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import cz.msebera.android.httpclient.Header;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements FilterDialogFragment.FilterDialogListener {
 
@@ -60,6 +59,12 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
 
     private String searchQuery = "";
     private Filter searchFilter;
+    private int page = 0;
+    private ArticleApi mArticleApi;
+
+    private interface Listener {
+        void onResult(SearchResult searchResult);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +72,77 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setRecycleView();
-        onArticleSearch(0);
+        mArticleApi = RetrofitUtils.getArticle().create(ArticleApi.class);
+
+        page = 0;
+        search();
+    }
+
+    private void search() {
+
+        Map<String, String> map = new HashMap<>();
+        map.put("page", String.valueOf(page));
+
+        if (!searchQuery.equals("")) {
+            map.put("q", searchQuery);
+        }
+
+        if (searchFilter != null) {
+            String day = searchFilter.day >= 10 ?
+                    String.valueOf(searchFilter.day) :
+                    "0" + String.valueOf(searchFilter.day);
+            String month = searchFilter.month >= 10 ?
+                    String.valueOf(searchFilter.month) :
+                    "0" + String.valueOf(searchFilter.month);
+            String year = String.valueOf(searchFilter.year);
+            map.put("begin_date", year + month + day);
+
+            if (searchFilter.sortOrder.equals("Newest")) {
+                map.put("sort", "newest");
+            } else if (searchFilter.sortOrder.equals("Oldest")) {
+                map.put("sort", "oldest");
+            }
+
+            if (searchFilter.isArts == 1) {
+                map.put("fq", "news_desk:(\"Arts\")");
+            } else if (searchFilter.isFashionStyle == 1) {
+                map.put("fq", "news_desk:(\"Fashion & Style\")");
+            } else if (searchFilter.isSports == 1) {
+                map.put("fq", "news_desk:(\"Sports\")");
+            }
+        }
+
+        fetchArticles(map, searchResult -> {
+
+            if (searchResult != null) {
+                List<Article> articlesResult = searchResult.getArticles();
+                if (page == 0) {
+                    articles.clear();
+                }
+                adapter.notifyDataSetChanged();
+                articles.addAll(articlesResult);
+                if (page == 0) {
+                    rvResult.scrollToPosition(0);
+                }
+                adapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    private void fetchArticles(Map<String, String> map, Listener listener) {
+
+
+        mArticleApi.search(map).enqueue(new Callback<SearchResult>() {
+            @Override
+            public void onResponse(Call<SearchResult> call, Response<SearchResult> response) {
+                listener.onResult(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<SearchResult> call, Throwable t) {
+
+            }
+        });
     }
 
     @Override
@@ -83,7 +158,8 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
             @Override
             public boolean onQueryTextSubmit(String query) {
                 searchQuery = query;
-                onArticleSearch(0);
+                page = 0;
+                search();
                 searchView.clearFocus();
                 return true;
             }
@@ -114,17 +190,13 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
         articles = new ArrayList<>();
         adapter = new ArticleArrayAdapter(this, articles);
         rvResult.setAdapter(adapter);
-
+        adapter.setListener(() -> {
+            page++;
+            search();
+        });
         StaggeredGridLayoutManager gridLayoutManager =
                 new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         rvResult.setLayoutManager(gridLayoutManager);
-        rvResult.addOnScrollListener(new EndlessRecyclerViewScrollListener(gridLayoutManager) {
-            @Override
-            public void onLoadMore(int page, int totalItemsCount) {
-                onArticleSearch(page);
-            }
-
-        });
 
         ItemClickSupport.addTo(rvResult).setOnItemClickListener(
                 new ItemClickSupport.OnItemClickListener() {
@@ -180,76 +252,11 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
         );
     }
 
-    public void onArticleSearch(final int page) {
-        AsyncHttpClient client = new AsyncHttpClient();
-        if (page == 0) {
-            rvResult.scrollToPosition(0);
-        }
-
-        RequestParams params = new RequestParams();
-        params.put("api-key", Constant.API_KEY);
-        params.put("page", page);
-
-        if (searchFilter != null) {
-            String day = searchFilter.day >= 10 ?
-                    String.valueOf(searchFilter.day) :
-                    "0" + String.valueOf(searchFilter.day);
-            String month = searchFilter.month >= 10 ?
-                    String.valueOf(searchFilter.month) :
-                    "0" + String.valueOf(searchFilter.month);
-            String year = String.valueOf(searchFilter.year);
-            params.put("begin_date", year + month + day);
-
-            if (searchFilter.sortOrder.equals("Newest")) {
-                params.put("sort", "newest");
-            } else if (searchFilter.sortOrder.equals("Oldest")) {
-                params.put("sort", "oldest");
-            }
-
-            if (searchFilter.isArts == 1) {
-                params.put("fq", "news_desk:(\"Arts\")");
-            } else if (searchFilter.isFashionStyle == 1) {
-                params.put("fq", "news_desk:(\"Fashion & Style\")");
-            } else if (searchFilter.isSports == 1) {
-                params.put("fq", "news_desk:(\"Sports\")");
-            }
-        }
-
-        if (!searchQuery.equals(""))
-            params.put("q", searchQuery);
-
-        client.get(Constant.ARTICLE_SEARCH, params, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                JSONArray articleJsonResults;
-
-                try {
-                    if (page == 0) {
-                        articles.clear();
-                    }
-                    adapter.notifyDataSetChanged();
-                    articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
-                    articles.addAll(Article.fromJSONArray(articleJsonResults));
-                    adapter.notifyDataSetChanged();
-                    if (page == 0) {
-                        rvResult.scrollToPosition(0);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            }
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-
-            }
-        });
-    }
-
     @Override
     public void onFinishFilterDialog(Filter filter) {
         searchFilter = filter;
-        onArticleSearch(0);
+        page = 0;
+        search();
     }
 }
 

@@ -25,10 +25,19 @@ public class ArticleArrayAdapter extends
 
     private ArrayList<Article> mArticles;
     private Context mContext;
+    private Listener mListener;
+
+    public interface Listener {
+        void onLoadMore();
+    }
 
     public ArticleArrayAdapter(Context context, ArrayList<Article> contacts) {
         mArticles = contacts;
         mContext = context;
+    }
+
+    public void setListener(Listener listener) {
+        mListener = listener;
     }
 
     private Context getContext() {
@@ -67,6 +76,10 @@ public class ArticleArrayAdapter extends
                 configureViewHolderNoImage(viewHolderWithNoImage, position);
                 break;
         }
+
+        if (position == mArticles.size() - 1 && mListener != null) {
+            mListener.onLoadMore();
+        }
     }
 
     private void configureViewHolderWithImage(ArticleImageViewHolder viewHolder, int position) {
@@ -74,9 +87,9 @@ public class ArticleArrayAdapter extends
 
         viewHolder.tvTitle.setText(contact.getHeadline());
 
-        if (!TextUtils.isEmpty(contact.getThumbNail())) {
+        if (!TextUtils.isEmpty(contact.getMultimedia().get(0).getUrl())) {
             Glide.with(getContext())
-                    .load(contact.getThumbNail())
+                    .load("http://www.nytimes.com/" + contact.getMultimedia().get(0).getUrl())
                     .into(viewHolder.ivImage);
         }
     }
@@ -95,7 +108,8 @@ public class ArticleArrayAdapter extends
 
     @Override
     public int getItemViewType(int position) {
-        if (!mArticles.get(position).getThumbNail().equals("")) {
+
+        if (mArticles.get(position).getMultimedia().size() != 0) {
             return ARTICLE_RESULT_IMAGE;
         } else {
             return ARTICLE_RESULT_NO_IMAGE;
