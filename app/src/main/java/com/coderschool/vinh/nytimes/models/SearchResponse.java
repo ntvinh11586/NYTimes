@@ -8,7 +8,7 @@ import java.util.List;
  * Created by Vinh on 10/23/2016.
  */
 
-public class SearchResult {
+public class SearchResponse {
 
     @SerializedName("docs")
     private List<Article> articles;

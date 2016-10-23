@@ -68,35 +68,35 @@ public class FilterDialogFragment extends DialogFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        cbArts.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (cbArts.isChecked()) {
-                    cbFashionStyle.setChecked(false);
-                    cbSports.setChecked(false);
-                }
-            }
-        });
-
-        cbFashionStyle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (cbFashionStyle.isChecked()) {
-                    cbArts.setChecked(false);
-                    cbSports.setChecked(false);
-                }
-            }
-        });
-
-        cbSports.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (cbSports.isChecked()) {
-                    cbFashionStyle.setChecked(false);
-                    cbArts.setChecked(false);
-                }
-            }
-        });
+//        cbArts.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if (cbArts.isChecked()) {
+//                    cbFashionStyle.setChecked(false);
+//                    cbSports.setChecked(false);
+//                }
+//            }
+//        });
+//
+//        cbFashionStyle.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if (cbFashionStyle.isChecked()) {
+//                    cbArts.setChecked(false);
+//                    cbSports.setChecked(false);
+//                }
+//            }
+//        });
+//
+//        cbSports.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if (cbSports.isChecked()) {
+//                    cbFashionStyle.setChecked(false);
+//                    cbArts.setChecked(false);
+//                }
+//            }
+//        });
 
 
         btnOK.setOnClickListener(new View.OnClickListener() {
@@ -119,16 +119,7 @@ public class FilterDialogFragment extends DialogFragment {
 
                     FilterDialogListener listener = (FilterDialogListener) getActivity();
                     listener.onFinishFilterDialog(filter);
-
-//                    Intent data = new Intent();
-//                    data.putExtra("filter", Parcels.wrap(filter));
-//                    setResult(RESULT_OK, data);
-
-//                    finish();
-                } else {
-//                    Toast.makeText(SearchFilterActivity.this, "Please choose begin date", Toast.LENGTH_SHORT).show();
                 }
-
 
                 dismiss();
             }

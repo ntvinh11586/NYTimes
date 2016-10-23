@@ -33,13 +33,13 @@ import com.coderschool.vinh.nytimes.api.ArticleApi;
 import com.coderschool.vinh.nytimes.fragments.FilterDialogFragment;
 import com.coderschool.vinh.nytimes.models.Article;
 import com.coderschool.vinh.nytimes.models.Filter;
-import com.coderschool.vinh.nytimes.models.SearchResult;
+import com.coderschool.vinh.nytimes.models.SearchRequest;
+import com.coderschool.vinh.nytimes.models.SearchResponse;
 import com.coderschool.vinh.nytimes.utils.ItemClickSupport;
 import com.coderschool.vinh.nytimes.utils.NetworkHelper;
 import com.coderschool.vinh.nytimes.utils.RetrofitUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -64,13 +64,12 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
     private ArrayList<Article> articles;
     private ArticleArrayAdapter adapter;
 
-    private String searchQuery = "";
-    private Filter searchFilter;
-    private int page = 0;
     private ArticleApi mArticleApi;
 
+    private SearchRequest searchRequest;
+
     private interface Listener {
-        void onResult(SearchResult searchResult);
+        void onResult(SearchResponse searchResponse);
     }
 
     @Override
@@ -79,58 +78,26 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setRecycleView();
-        mArticleApi = RetrofitUtils.getArticle().create(ArticleApi.class);
 
-        page = 0;
+        searchRequest = new SearchRequest();
+        mArticleApi = RetrofitUtils.getArticle().create(ArticleApi.class);
         pbLoading.setVisibility(View.VISIBLE);
+
         search();
     }
 
     private void search() {
-
-        Map<String, String> map = new HashMap<>();
-        map.put("page", String.valueOf(page));
-
-        if (!searchQuery.equals("")) {
-            map.put("q", searchQuery);
-        }
-
-        if (searchFilter != null) {
-            String day = searchFilter.day >= 10 ?
-                    String.valueOf(searchFilter.day) :
-                    "0" + String.valueOf(searchFilter.day);
-            String month = searchFilter.month >= 10 ?
-                    String.valueOf(searchFilter.month) :
-                    "0" + String.valueOf(searchFilter.month);
-            String year = String.valueOf(searchFilter.year);
-            map.put("begin_date", year + month + day);
-
-            if (searchFilter.sortOrder.equals("Newest")) {
-                map.put("sort", "newest");
-            } else if (searchFilter.sortOrder.equals("Oldest")) {
-                map.put("sort", "oldest");
-            }
-
-            if (searchFilter.isArts == 1) {
-                map.put("fq", "news_desk:(\"Arts\")");
-            } else if (searchFilter.isFashionStyle == 1) {
-                map.put("fq", "news_desk:(\"Fashion & Style\")");
-            } else if (searchFilter.isSports == 1) {
-                map.put("fq", "news_desk:(\"Sports\")");
-            }
-        }
-
         if (NetworkHelper.isNetworkAvailable(getBaseContext()) && NetworkHelper.isOnline()) {
-            fetchArticles(map, searchResult -> {
+            fetchArticles(searchRequest.getParam(), searchResult -> {
 
                 if (searchResult != null) {
                     List<Article> articlesResult = searchResult.getArticles();
-                    if (page == 0) {
+                    if (searchRequest.getPage() == 0) {
                         articles.clear();
                     }
                     adapter.notifyDataSetChanged();
                     articles.addAll(articlesResult);
-                    if (page == 0) {
+                    if (searchRequest.getPage() == 0) {
                         rvResult.scrollToPosition(0);
                     }
                     adapter.notifyDataSetChanged();
@@ -147,16 +114,16 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
     private void fetchArticles(Map<String, String> map, Listener listener) {
 
 
-        mArticleApi.search(map).enqueue(new Callback<SearchResult>() {
+        mArticleApi.search(map).enqueue(new Callback<SearchResponse>() {
             @Override
-            public void onResponse(Call<SearchResult> call, Response<SearchResult> response) {
+            public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
                 listener.onResult(response.body());
                 pbLoadMore.setVisibility(View.GONE);
                 pbLoading.setVisibility(View.GONE);
             }
 
             @Override
-            public void onFailure(Call<SearchResult> call, Throwable t) {
+            public void onFailure(Call<SearchResponse> call, Throwable t) {
 
             }
         });
@@ -169,17 +136,15 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
 
         MenuItem searchItem = menu.findItem(R.id.action_search);
         searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-        searchItem.expandActionView();
-        searchView.requestFocus();
         searchView.setOnCloseListener(() -> {
-            searchQuery = "";
+            searchRequest.setSearchQuery("");
             return false;
         });
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                searchQuery = query;
-                page = 0;
+                searchRequest.setSearchQuery(query);
+                searchRequest.setPage(0);
                 pbLoading.setVisibility(View.VISIBLE);
                 articles.clear();
                 adapter.notifyDataSetChanged();
@@ -216,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
         rvResult.setAdapter(adapter);
         adapter.setListener(() -> {
             pbLoadMore.setVisibility(View.VISIBLE);
-            page++;
+            searchRequest.setPage(searchRequest.getPage() + 1);
             search();
         });
         StaggeredGridLayoutManager gridLayoutManager =
@@ -279,8 +244,8 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
 
     @Override
     public void onFinishFilterDialog(Filter filter) {
-        searchFilter = filter;
-        page = 0;
+        searchRequest.setPage(0);
+        searchRequest.setSearchFilter(filter);
         pbLoading.setVisibility(View.VISIBLE);
         articles.clear();
         adapter.notifyDataSetChanged();

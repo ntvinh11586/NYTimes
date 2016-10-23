@@ -31,8 +31,8 @@ public class ArticleArrayAdapter extends
         void onLoadMore();
     }
 
-    public ArticleArrayAdapter(Context context, ArrayList<Article> contacts) {
-        mArticles = contacts;
+    public ArticleArrayAdapter(Context context, ArrayList<Article> articles) {
+        mArticles = articles;
         mContext = context;
     }
 
@@ -83,13 +83,13 @@ public class ArticleArrayAdapter extends
     }
 
     private void configureViewHolderWithImage(ArticleImageViewHolder viewHolder, int position) {
-        Article contact = mArticles.get(position);
+        Article article = mArticles.get(position);
 
-        viewHolder.tvTitle.setText(contact.getHeadline());
+        viewHolder.tvTitle.setText(article.getHeadline());
 
-        if (!TextUtils.isEmpty(contact.getMultimedia().get(0).getUrl())) {
+        if (!TextUtils.isEmpty(article.getMultimedia().get(0).getUrl())) {
             Glide.with(getContext())
-                    .load("http://www.nytimes.com/" + contact.getMultimedia().get(0).getUrl())
+                    .load("http://www.nytimes.com/" + article.getMultimedia().get(0).getUrl())
                     .into(viewHolder.ivImage);
         }
     }
