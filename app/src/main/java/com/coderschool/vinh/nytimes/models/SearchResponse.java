@@ -9,7 +9,6 @@ import java.util.List;
  */
 
 public class SearchResponse {
-
     @SerializedName("docs")
     private List<Article> articles;
 

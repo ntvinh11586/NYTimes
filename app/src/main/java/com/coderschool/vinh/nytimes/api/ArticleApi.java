@@ -13,7 +13,6 @@ import retrofit2.http.QueryMap;
  */
 
 public interface ArticleApi {
-
     @GET("articlesearch.json")
     Call<SearchResponse> search(@QueryMap(encoded = true) Map<String, String> options);
 }

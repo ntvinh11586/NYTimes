@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
         mArticleApi.search(map).enqueue(new Callback<SearchResponse>() {
             @Override
             public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
+                // Response of Retrofit 2
                 listener.onResult(response.body());
                 pbLoadMore.setVisibility(View.GONE);
                 pbLoading.setVisibility(View.GONE);

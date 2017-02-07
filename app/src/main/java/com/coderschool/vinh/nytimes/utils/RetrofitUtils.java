@@ -13,14 +13,16 @@ import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.coderschool.vinh.nytimes.utils.Constant.API_KEY;
+
 /**
  * Created by Vinh on 10/23/2016.
  */
 
 public class RetrofitUtils {
-
-    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    public static final Gson GSON = new Gson();
+    // Media Type, appropriate to describe
+    // the content type of an HTTP request or response body.
+    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     public static Retrofit getArticle() {
         return new Retrofit.Builder()
@@ -41,9 +43,15 @@ public class RetrofitUtils {
         return chain -> {
             Request request = chain.request();
             Response response = chain.proceed(request);
+
+            // Response of Okhttp3
             ResponseBody body = response.body();
-            ApiResponse apiResponse = GSON.fromJson(body.string(), ApiResponse.class);
+            // We need to build a new response from parsing
+            // to json to take only response Object data (pre-processing)
+            ApiResponse apiResponse = (new Gson()).fromJson(body.string(), ApiResponse.class);
+            // Remember to close
             body.close();
+
             return response.newBuilder()
                     .body(ResponseBody.create(JSON, apiResponse.getResponse().toString()))
                     .build();
@@ -55,7 +63,7 @@ public class RetrofitUtils {
             Request request = chain.request();
             HttpUrl url = request.url()
                     .newBuilder()
-                    .addQueryParameter("api_key", "51065f56d04445baa91280fa70489e8e")
+                    .addQueryParameter("api_key", Constant.API_KEY)
                     .build();
             request = request.newBuilder()
                     .url(url)

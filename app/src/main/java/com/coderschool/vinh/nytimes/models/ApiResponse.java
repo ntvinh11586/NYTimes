@@ -8,7 +8,6 @@ import com.google.gson.annotations.SerializedName;
  */
 
 public class ApiResponse {
-
     @SerializedName("response")
     private JsonObject response;
 
@@ -18,5 +17,4 @@ public class ApiResponse {
         }
         return response;
     }
-
 }
