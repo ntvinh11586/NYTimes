@@ -1,12 +1,15 @@
 package com.coderschool.vinh.nytimes.models;
 
+import com.google.gson.annotations.SerializedName;
+
+import org.parceler.Parcel;
+
 @Parcel
-    public static class Headline {
+public class Headline {
+    @SerializedName("main")
+    String main;
 
-        @SerializedName("main")
-        String main;
-
-        public String getHeadline() {
+    public String getHeadline() {
             return main;
         }
-    }
+}

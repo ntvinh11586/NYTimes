@@ -8,7 +8,6 @@ import java.util.Map;
  */
 
 public class SearchRequest {
-
     private int page;
     private String searchQuery;
     private Filter searchFilter;

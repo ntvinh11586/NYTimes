@@ -12,10 +12,8 @@ import java.util.List;
 
 @Parcel
 public class Article {
-
     @SerializedName("web_url")
     String webUrl;
-
 
     @SerializedName("headline")
     Headline headline;
@@ -23,26 +21,10 @@ public class Article {
     @SerializedName("multimedia")
     List<Multimedia> multimedia;
 
-    @Parcel
-    public static class Multimedia {
+    @SerializedName("snippet")
+    String snippet;
 
-        @SerializedName("url")
-        String url;
-
-        public String getUrl() {
-            return url;
-        }
-    }
-
-    @Parcel
-    public static class Headline {
-
-        @SerializedName("main")
-        String main;
-
-        public String getHeadline() {
-            return main;
-        }
+    public Article() {
     }
 
     public String getHeadline() {
@@ -51,14 +33,6 @@ public class Article {
 
     public List<Multimedia> getMultimedia() {
         return multimedia;
-    }
-
-    String thumbNail;
-
-    @SerializedName("snippet")
-    String snippet;
-
-    public Article() {
     }
 
     public String getWebUrl() {
