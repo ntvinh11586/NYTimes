@@ -14,13 +14,13 @@ import android.view.ViewGroup;
 import com.bumptech.glide.Glide;
 import com.coderschool.vinh.nytimes.R;
 import com.coderschool.vinh.nytimes.models.Article;
+import com.coderschool.vinh.nytimes.models.Multimedia;
 
 import java.util.ArrayList;
 
 public class ArticleArrayAdapter extends
         RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
-    private final int ARTICLE_RESULT_IMAGE = 0;
+    private final int ARTICLE_RESULT_WITH_IMAGE = 0;
     private final int ARTICLE_RESULT_NO_IMAGE = 1;
 
     private ArrayList<Article> mArticles;
@@ -31,13 +31,13 @@ public class ArticleArrayAdapter extends
         void onLoadMore();
     }
 
+    public void setListener(Listener listener) {
+        mListener = listener;
+    }
+
     public ArticleArrayAdapter(Context context, ArrayList<Article> articles) {
         mArticles = articles;
         mContext = context;
-    }
-
-    public void setListener(Listener listener) {
-        mListener = listener;
     }
 
     private Context getContext() {
@@ -46,34 +46,27 @@ public class ArticleArrayAdapter extends
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        RecyclerView.ViewHolder viewHolder = null;
-        LayoutInflater inflater = LayoutInflater.from(mContext);
-
-        switch (viewType) {
-            case ARTICLE_RESULT_IMAGE:
-                View articleResultImage = inflater.inflate(R.layout.item_article_result_image, parent, false);
-                viewHolder = new ArticleImageViewHolder(articleResultImage);
-                break;
-            case ARTICLE_RESULT_NO_IMAGE:
-                View articleResultNoImage = inflater.inflate(R.layout.item_article_result_no_image, parent, false);
-                viewHolder = new ArticleNoImageViewHolder(articleResultNoImage);
-                break;
+        if (viewType == ARTICLE_RESULT_WITH_IMAGE) {
+            View articleResultWithImage = LayoutInflater.from(getContext())
+                    .inflate(R.layout.item_article_result_with_image, parent, false);
+            return new ArticleImageVH(articleResultWithImage);
+        } else {
+            View articleResultNoImage = LayoutInflater.from(getContext())
+                    .inflate(R.layout.item_article_result_no_image, parent, false);
+            return new ArticleNoImageVH(articleResultNoImage);
         }
-
-        return viewHolder;
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
-
         switch (viewHolder.getItemViewType()) {
-            case ARTICLE_RESULT_IMAGE:
-                ArticleImageViewHolder viewHolderWithImage = (ArticleImageViewHolder) viewHolder;
-                configureViewHolderWithImage(viewHolderWithImage, position);
+            case ARTICLE_RESULT_WITH_IMAGE:
+                ArticleImageVH vhWithImage = (ArticleImageVH) viewHolder;
+                setVHWithImage(vhWithImage, position);
                 break;
             case ARTICLE_RESULT_NO_IMAGE:
-                ArticleNoImageViewHolder viewHolderWithNoImage = (ArticleNoImageViewHolder) viewHolder;
-                configureViewHolderNoImage(viewHolderWithNoImage, position);
+                ArticleNoImageVH vhWithNoImage = (ArticleNoImageVH) viewHolder;
+                setVHNoImage(vhWithNoImage, position);
                 break;
         }
 
@@ -82,21 +75,20 @@ public class ArticleArrayAdapter extends
         }
     }
 
-    private void configureViewHolderWithImage(ArticleImageViewHolder viewHolder, int position) {
+    private void setVHWithImage(ArticleImageVH viewHolder, int position) {
         Article article = mArticles.get(position);
+        Multimedia multimedia = article.getMultimedia().get(0);
 
         viewHolder.tvTitle.setText(article.getHeadline());
-
-        if (!TextUtils.isEmpty(article.getMultimedia().get(0).getUrl())) {
+        if (!TextUtils.isEmpty(multimedia.getUrl())) {
             Glide.with(getContext())
-                    .load("http://www.nytimes.com/" + article.getMultimedia().get(0).getUrl())
+                    .load(multimedia.getFullUrl())
                     .into(viewHolder.ivImage);
         }
     }
 
-    private void configureViewHolderNoImage(ArticleNoImageViewHolder viewHolder, int position) {
+    private void setVHNoImage(ArticleNoImageVH viewHolder, int position) {
         Article contact = mArticles.get(position);
-
         viewHolder.tvTitle.setText(contact.getHeadline());
         viewHolder.tvSnippet.setText(contact.getSnippet());
     }
@@ -108,12 +100,10 @@ public class ArticleArrayAdapter extends
 
     @Override
     public int getItemViewType(int position) {
-
-        if (mArticles.get(position).getMultimedia().size() != 0) {
-            return ARTICLE_RESULT_IMAGE;
+        if (mArticles.get(position).getMultimedia().size() > 0) {
+            return ARTICLE_RESULT_WITH_IMAGE;
         } else {
             return ARTICLE_RESULT_NO_IMAGE;
         }
     }
-
 }

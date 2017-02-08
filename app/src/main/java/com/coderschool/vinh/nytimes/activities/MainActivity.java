@@ -30,7 +30,7 @@ import android.widget.Toast;
 import com.coderschool.vinh.nytimes.R;
 import com.coderschool.vinh.nytimes.adapters.ArticleArrayAdapter;
 import com.coderschool.vinh.nytimes.api.ArticleApi;
-import com.coderschool.vinh.nytimes.fragments.FilterDialogFragment;
+import com.coderschool.vinh.nytimes.fragments.FilterDialog;
 import com.coderschool.vinh.nytimes.models.Article;
 import com.coderschool.vinh.nytimes.models.Filter;
 import com.coderschool.vinh.nytimes.models.SearchRequest;
@@ -50,7 +50,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity
-        implements FilterDialogFragment.FilterDialogListener {
+        implements FilterDialog.FilterDialogListener {
     @BindView(R.id.recycle_view_results)
     RecyclerView rvResult;
     @BindView(R.id.pbLoadMore)
@@ -163,8 +163,8 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.action_search_filter:
                 FragmentManager fm = getSupportFragmentManager();
-                FilterDialogFragment filterDialogFragment = FilterDialogFragment.newInstance();
-                filterDialogFragment.show(fm, "fragment_search_filter");
+                FilterDialog filterDialog = FilterDialog.newInstance();
+                filterDialog.show(fm, "fragment_search_filter");
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

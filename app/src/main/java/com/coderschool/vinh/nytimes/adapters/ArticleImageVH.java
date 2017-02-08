@@ -14,14 +14,13 @@ import butterknife.ButterKnife;
  * Created by Vinh on 10/20/2016.
  */
 
-public class ArticleImageViewHolder extends RecyclerView.ViewHolder {
-
+public class ArticleImageVH extends RecyclerView.ViewHolder {
     @BindView(R.id.tvTitle)
     TextView tvTitle;
     @BindView(R.id.ivImage)
     ImageView ivImage;
 
-    ArticleImageViewHolder(View itemView) {
+    ArticleImageVH(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
     }
