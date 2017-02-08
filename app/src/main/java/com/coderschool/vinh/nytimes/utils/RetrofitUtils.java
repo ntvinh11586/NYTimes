@@ -13,7 +13,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.coderschool.vinh.nytimes.utils.Constant.API_KEY;
+import static com.coderschool.vinh.nytimes.utils.Constant.BASE_URL;
 
 /**
  * Created by Vinh on 10/23/2016.
@@ -26,7 +26,7 @@ public class RetrofitUtils {
 
     public static Retrofit getArticle() {
         return new Retrofit.Builder()
-                .baseUrl("https://api.nytimes.com/svc/search/v2/")
+                .baseUrl(Constant.BASE_URL)
                 .client(client())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();

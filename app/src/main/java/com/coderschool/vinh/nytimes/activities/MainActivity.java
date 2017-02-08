@@ -49,10 +49,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements FilterDialogFragment.FilterDialogListener {
-
-    private final int REQUEST_CODE = 1;
-
+public class MainActivity extends AppCompatActivity
+        implements FilterDialogFragment.FilterDialogListener {
     @BindView(R.id.recycle_view_results)
     RecyclerView rvResult;
     @BindView(R.id.pbLoadMore)
@@ -63,9 +61,7 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
 
     private ArrayList<Article> articles;
     private ArticleArrayAdapter adapter;
-
     private ArticleApi mArticleApi;
-
     private SearchRequest searchRequest;
 
     private interface Listener {
@@ -112,12 +108,11 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
     }
 
     private void fetchArticles(Map<String, String> map, Listener listener) {
-
-
         mArticleApi.search(map).enqueue(new Callback<SearchResponse>() {
             @Override
             public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
-                // Response of Retrofit 2
+                // response.body() -> response of Retrofit 2
+                // listener.onResult() -> callback
                 listener.onResult(response.body());
                 pbLoadMore.setVisibility(View.GONE);
                 pbLoading.setVisibility(View.GONE);
