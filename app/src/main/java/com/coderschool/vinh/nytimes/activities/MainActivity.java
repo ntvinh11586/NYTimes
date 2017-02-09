@@ -172,17 +172,19 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void setRecycleView() {
+        // Basic RecycleView setup
         articles = new ArrayList<>();
         adapter = new ArticleArrayAdapter(this, articles);
         rvResult.setAdapter(adapter);
-        adapter.setListener(() -> {
+        StaggeredGridLayoutManager gridLayoutManager =
+                new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        rvResult.setLayoutManager(gridLayoutManager);
+
+        adapter.setOnLoadMoreListener(() -> {
             pbLoadMore.setVisibility(View.VISIBLE);
             searchRequest.setPage(searchRequest.getPage() + 1);
             search();
         });
-        StaggeredGridLayoutManager gridLayoutManager =
-                new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        rvResult.setLayoutManager(gridLayoutManager);
 
         ItemClickSupport.addTo(rvResult).setOnItemClickListener(
                 new ItemClickSupport.OnItemClickListener() {

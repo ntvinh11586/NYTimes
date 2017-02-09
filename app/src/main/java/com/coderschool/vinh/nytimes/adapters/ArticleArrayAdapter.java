@@ -25,14 +25,16 @@ public class ArticleArrayAdapter extends
 
     private ArrayList<Article> mArticles;
     private Context mContext;
-    private Listener mListener;
 
-    public interface Listener {
-        void onLoadMore();
+    // Handle load more item listener - callback pattern
+    private OnLoadMoreItemListener mOnLoadMoreItemListener;
+
+    public interface OnLoadMoreItemListener {
+        void onLoadMoreItem();
     }
 
-    public void setListener(Listener listener) {
-        mListener = listener;
+    public void setOnLoadMoreListener(OnLoadMoreItemListener onLoadMoreItemListener) {
+        mOnLoadMoreItemListener = onLoadMoreItemListener;
     }
 
     public ArticleArrayAdapter(Context context, ArrayList<Article> articles) {
@@ -42,6 +44,10 @@ public class ArticleArrayAdapter extends
 
     private Context getContext() {
         return mContext;
+    }
+
+    private Article getArticle(int position) {
+        return mArticles.get(position);
     }
 
     @Override
@@ -70,13 +76,15 @@ public class ArticleArrayAdapter extends
                 break;
         }
 
-        if (position == mArticles.size() - 1 && mListener != null) {
-            mListener.onLoadMore();
+        // handle load more item
+        if (position == mArticles.size() - 1 && mOnLoadMoreItemListener != null) {
+            // callback
+            mOnLoadMoreItemListener.onLoadMoreItem();
         }
     }
 
     private void setVHWithImage(ArticleImageVH viewHolder, int position) {
-        Article article = mArticles.get(position);
+        Article article = getArticle(position);
         Multimedia multimedia = article.getMultimedia().get(0);
 
         viewHolder.tvTitle.setText(article.getHeadline());
@@ -88,7 +96,7 @@ public class ArticleArrayAdapter extends
     }
 
     private void setVHNoImage(ArticleNoImageVH viewHolder, int position) {
-        Article contact = mArticles.get(position);
+        Article contact = getArticle(position);
         viewHolder.tvTitle.setText(contact.getHeadline());
         viewHolder.tvSnippet.setText(contact.getSnippet());
     }
@@ -100,7 +108,7 @@ public class ArticleArrayAdapter extends
 
     @Override
     public int getItemViewType(int position) {
-        if (mArticles.get(position).getMultimedia().size() > 0) {
+        if (getArticle(position).getMultimedia().size() > 0) {
             return ARTICLE_RESULT_WITH_IMAGE;
         } else {
             return ARTICLE_RESULT_NO_IMAGE;
