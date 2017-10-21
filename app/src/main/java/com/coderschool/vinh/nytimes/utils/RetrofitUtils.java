@@ -13,10 +13,6 @@ import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-/**
- * Created by Vinh on 10/23/2016.
- */
-
 public class RetrofitUtils {
     // Media Type, appropriate to describe
     // the content type of an HTTP request or response body.

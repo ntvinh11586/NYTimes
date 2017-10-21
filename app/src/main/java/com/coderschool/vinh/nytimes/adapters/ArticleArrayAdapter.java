@@ -1,9 +1,5 @@
 package com.coderschool.vinh.nytimes.adapters;
 
-/**
- * Created by Vinh on 10/20/2016.
- */
-
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -55,11 +51,11 @@ public class ArticleArrayAdapter extends
         if (viewType == ARTICLE_RESULT_WITH_IMAGE) {
             View articleResultWithImage = LayoutInflater.from(getContext())
                     .inflate(R.layout.item_article_result_with_image, parent, false);
-            return new ArticleImageVH(articleResultWithImage);
+            return new ArticleImageViewHolder(articleResultWithImage);
         } else {
             View articleResultNoImage = LayoutInflater.from(getContext())
                     .inflate(R.layout.item_article_result_no_image, parent, false);
-            return new ArticleNoImageVH(articleResultNoImage);
+            return new ArticleNoImageViewHolder(articleResultNoImage);
         }
     }
 
@@ -67,11 +63,11 @@ public class ArticleArrayAdapter extends
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         switch (viewHolder.getItemViewType()) {
             case ARTICLE_RESULT_WITH_IMAGE:
-                ArticleImageVH vhWithImage = (ArticleImageVH) viewHolder;
+                ArticleImageViewHolder vhWithImage = (ArticleImageViewHolder) viewHolder;
                 setVHWithImage(vhWithImage, position);
                 break;
             case ARTICLE_RESULT_NO_IMAGE:
-                ArticleNoImageVH vhWithNoImage = (ArticleNoImageVH) viewHolder;
+                ArticleNoImageViewHolder vhWithNoImage = (ArticleNoImageViewHolder) viewHolder;
                 setVHNoImage(vhWithNoImage, position);
                 break;
         }
@@ -83,7 +79,7 @@ public class ArticleArrayAdapter extends
         }
     }
 
-    private void setVHWithImage(ArticleImageVH viewHolder, int position) {
+    private void setVHWithImage(ArticleImageViewHolder viewHolder, int position) {
         Article article = getArticle(position);
         Multimedia multimedia = article.getMultimedia().get(0);
 
@@ -95,7 +91,7 @@ public class ArticleArrayAdapter extends
         }
     }
 
-    private void setVHNoImage(ArticleNoImageVH viewHolder, int position) {
+    private void setVHNoImage(ArticleNoImageViewHolder viewHolder, int position) {
         Article contact = getArticle(position);
         viewHolder.tvTitle.setText(contact.getHeadline());
         viewHolder.tvSnippet.setText(contact.getSnippet());

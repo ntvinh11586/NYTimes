@@ -3,10 +3,6 @@ package com.coderschool.vinh.nytimes.models;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by Vinh on 10/23/2016.
- */
-
 public class SearchRequest {
     private int page;
     private String searchQuery;

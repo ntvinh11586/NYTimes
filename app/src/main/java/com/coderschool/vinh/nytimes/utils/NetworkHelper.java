@@ -6,10 +6,6 @@ import android.net.NetworkInfo;
 
 import java.io.IOException;
 
-/**
- * Created by Vinh on 10/23/2016.
- */
-
 public class NetworkHelper {
 
     public static boolean isOnline() {

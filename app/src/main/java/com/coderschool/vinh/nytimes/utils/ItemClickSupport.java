@@ -5,10 +5,6 @@ import android.view.View;
 
 import com.coderschool.vinh.nytimes.R;
 
-/**
- * Created by Vinh on 10/20/2016.
- */
-
 /*
   Source: http://www.littlerobots.nl/blog/Handle-Android-RecyclerView-Clicks/
   USAGE:

@@ -6,10 +6,6 @@ import org.parceler.Parcel;
 
 import java.util.List;
 
-/**
- * Created by Vinh on 10/18/2016.
- */
-
 @Parcel
 public class Article {
     @SerializedName("web_url")

@@ -20,10 +20,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
-/**
- * Created by Vinh on 10/22/2016.
- */
-
 public class FilterDialog extends DialogFragment {
     @BindView(R.id.edit_begin_date)
     DatePicker dpBeginDate;

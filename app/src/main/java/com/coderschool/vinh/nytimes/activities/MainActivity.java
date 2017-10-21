@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -57,7 +56,6 @@ public class MainActivity extends AppCompatActivity
     ProgressBar pbLoadMore;
     @BindView(R.id.pbLoading)
     ProgressBar pbLoading;
-    SearchView searchView;
 
     private ArrayList<Article> articles;
     private ArticleArrayAdapter adapter;
@@ -73,7 +71,8 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        setRecycleView();
+
+        setupRecycleView();
 
         searchRequest = new SearchRequest();
         mArticleApi = RetrofitUtils.getArticle().create(ArticleApi.class);
@@ -110,9 +109,8 @@ public class MainActivity extends AppCompatActivity
     private void fetchArticles(Map<String, String> map, Listener listener) {
         mArticleApi.search(map).enqueue(new Callback<SearchResponse>() {
             @Override
-            public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
-                // response.body() -> response of Retrofit 2
-                // listener.onResult() -> callback
+            public void onResponse(Call<SearchResponse> call,
+                                   Response<SearchResponse> response) {
                 listener.onResult(response.body());
                 pbLoadMore.setVisibility(View.GONE);
                 pbLoading.setVisibility(View.GONE);
@@ -131,11 +129,12 @@ public class MainActivity extends AppCompatActivity
         inflater.inflate(R.menu.menu_main, menu);
 
         MenuItem searchItem = menu.findItem(R.id.action_search);
-        searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        SearchView searchView = (SearchView) searchItem.getActionView();
         searchView.setOnCloseListener(() -> {
             searchRequest.setSearchQuery("");
             return false;
         });
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -171,11 +170,11 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void setRecycleView() {
-        // Basic RecycleView setup
+    public void setupRecycleView() {
         articles = new ArrayList<>();
         adapter = new ArticleArrayAdapter(this, articles);
         rvResult.setAdapter(adapter);
+
         StaggeredGridLayoutManager gridLayoutManager =
                 new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         rvResult.setLayoutManager(gridLayoutManager);
@@ -186,58 +185,56 @@ public class MainActivity extends AppCompatActivity
             search();
         });
 
-        ItemClickSupport.addTo(rvResult).setOnItemClickListener(
-                new ItemClickSupport.OnItemClickListener() {
-                    @Override
-                    public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                        PendingIntent pendingIntent = getShareIntentAction(
-                                articles.get(position).getWebUrl());
+        ItemClickSupport.addTo(rvResult)
+                .setOnItemClickListener(this::loadWebView);
+    }
 
-                        CustomTabsIntent.Builder customTabsIntent = new CustomTabsIntent.Builder();
-                        customTabsIntent.setToolbarColor(
-                                ContextCompat.getColor(getBaseContext(), R.color.colorPrimary))
-                                .setActionButton(getBitmap(getBaseContext(), R.drawable.ic_menu_share),
-                                        "Share Link", pendingIntent, true)
-                                .build()
-                                .launchUrl(MainActivity.this,
-                                        Uri.parse(articles.get(position).getWebUrl()));
-                    }
+    // TODO: 21/10/17 Need to refactor loadWebView
+    private void loadWebView(RecyclerView recyclerView, int position, View v) {
+        PendingIntent pendingIntent = getShareIntentAction(
+                articles.get(position).getWebUrl());
 
-                    private Bitmap getBitmap(Context context, int drawableId) {
-                        Drawable drawable = ContextCompat.getDrawable(context, drawableId);
-                        if (drawable instanceof BitmapDrawable) {
-                            return ((BitmapDrawable) drawable).getBitmap();
-                        } else if (drawable instanceof VectorDrawable) {
-                            return getBitmap((VectorDrawable) drawable);
-                        } else {
-                            throw new IllegalArgumentException("unsupported drawable type");
-                        }
-                    }
+        CustomTabsIntent.Builder customTabsIntent = new CustomTabsIntent.Builder();
+        customTabsIntent.setToolbarColor(
+                ContextCompat.getColor(getBaseContext(), R.color.colorPrimary))
+                .setActionButton(getBitmap(getBaseContext(), R.drawable.ic_menu_share),
+                        "Share Link", pendingIntent, true)
+                .build()
+                .launchUrl(MainActivity.this,
+                        Uri.parse(articles.get(position).getWebUrl()));
+    }
 
-                    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-                    private Bitmap getBitmap(VectorDrawable vectorDrawable) {
-                        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
-                                vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-                        Canvas canvas = new Canvas(bitmap);
-                        vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-                        vectorDrawable.draw(canvas);
-                        return bitmap;
-                    }
+    PendingIntent getShareIntentAction(String url) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, url);
+        int requestCode = 100;
 
+        return PendingIntent.getActivity(getBaseContext(),
+                requestCode,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+    }
 
-                    PendingIntent getShareIntentAction(String url) {
-                        Intent intent = new Intent(Intent.ACTION_SEND);
-                        intent.setType("text/plain");
-                        intent.putExtra(Intent.EXTRA_TEXT, url);
-                        int requestCode = 100;
+    private Bitmap getBitmap(Context context, int drawableId) {
+        Drawable drawable = ContextCompat.getDrawable(context, drawableId);
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable) drawable).getBitmap();
+        } else if (drawable instanceof VectorDrawable) {
+            return getBitmap((VectorDrawable) drawable);
+        } else {
+            throw new IllegalArgumentException("unsupported drawable type");
+        }
+    }
 
-                        return PendingIntent.getActivity(getBaseContext(),
-                                requestCode,
-                                intent,
-                                PendingIntent.FLAG_UPDATE_CURRENT);
-                    }
-                }
-        );
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private Bitmap getBitmap(VectorDrawable vectorDrawable) {
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
+                vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        vectorDrawable.draw(canvas);
+        return bitmap;
     }
 
     @Override

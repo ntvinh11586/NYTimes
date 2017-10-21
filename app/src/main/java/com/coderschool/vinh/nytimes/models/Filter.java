@@ -2,10 +2,6 @@ package com.coderschool.vinh.nytimes.models;
 
 import org.parceler.Parcel;
 
-/**
- * Created by Vinh on 10/20/2016.
- */
-
 @Parcel
 public class Filter {
     public int day;
