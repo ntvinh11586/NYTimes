@@ -82,7 +82,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void search() {
-        if (NetworkHelper.isNetworkAvailable(getBaseContext()) && NetworkHelper.isOnline()) {
+        if (NetworkHelper.isNetworkAvailable(getBaseContext())
+                && NetworkHelper.isOnline()) {
             fetchArticles(searchRequest.getParam(), searchResult -> {
 
                 if (searchResult != null) {
@@ -90,11 +91,12 @@ public class MainActivity extends AppCompatActivity
                     if (searchRequest.getPage() == 0) {
                         articles.clear();
                     }
-                    adapter.notifyDataSetChanged();
+
                     articles.addAll(articlesResult);
                     if (searchRequest.getPage() == 0) {
                         rvResult.scrollToPosition(0);
                     }
+
                     adapter.notifyDataSetChanged();
                 }
             });
