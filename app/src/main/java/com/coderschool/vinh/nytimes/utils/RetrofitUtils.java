@@ -2,6 +2,7 @@ package com.coderschool.vinh.nytimes.utils;
 
 import com.coderschool.vinh.nytimes.models.ApiResponse;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
@@ -14,10 +15,6 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitUtils {
-    // Media Type, appropriate to describe
-    // the content type of an HTTP request or response body.
-    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-
     public static Retrofit getArticle() {
         return new Retrofit.Builder()
                 .baseUrl(Constant.API_BASE_URL)
@@ -46,8 +43,12 @@ public class RetrofitUtils {
             // Remember to close
             body.close();
 
+            // Prepare data body
+            MediaType jsonMediaType = MediaType.parse("application/json; charset=utf-8");
+            JsonObject responseJSON = apiResponse.getResponse();
+
             return response.newBuilder()
-                    .body(ResponseBody.create(JSON, apiResponse.getResponse().toString()))
+                    .body(ResponseBody.create(jsonMediaType, responseJSON.toString()))
                     .build();
         };
     }

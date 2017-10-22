@@ -29,27 +29,27 @@ import android.widget.Toast;
 import com.coderschool.vinh.nytimes.R;
 import com.coderschool.vinh.nytimes.adapters.ArticleArrayAdapter;
 import com.coderschool.vinh.nytimes.api.ArticleApi;
+import com.coderschool.vinh.nytimes.callbacks.GetArticleCallback;
+import com.coderschool.vinh.nytimes.datas.NYTimesRepositoryImpl;
 import com.coderschool.vinh.nytimes.fragments.FilterDialog;
 import com.coderschool.vinh.nytimes.models.Article;
 import com.coderschool.vinh.nytimes.models.Filter;
 import com.coderschool.vinh.nytimes.models.SearchRequest;
 import com.coderschool.vinh.nytimes.models.SearchResponse;
+import com.coderschool.vinh.nytimes.repositories.NYTimesRepository;
 import com.coderschool.vinh.nytimes.utils.ItemClickSupport;
 import com.coderschool.vinh.nytimes.utils.NetworkHelper;
 import com.coderschool.vinh.nytimes.utils.RetrofitUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity
-        implements FilterDialog.FilterDialogListener {
+        implements FilterDialog.FilterDialogListener,
+        GetArticleCallback {
     @BindView(R.id.recycle_view_results)
     RecyclerView rvResult;
     @BindView(R.id.pbLoadMore)
@@ -59,12 +59,9 @@ public class MainActivity extends AppCompatActivity
 
     private ArrayList<Article> articles;
     private ArticleArrayAdapter adapter;
-    private ArticleApi mArticleApi;
     private SearchRequest searchRequest;
 
-    private interface Listener {
-        void onResult(SearchResponse searchResponse);
-    }
+    private NYTimesRepository nyTimesRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,55 +71,26 @@ public class MainActivity extends AppCompatActivity
 
         setupRecycleView();
 
-        searchRequest = new SearchRequest();
-        mArticleApi = RetrofitUtils.getArticle().create(ArticleApi.class);
         pbLoading.setVisibility(View.VISIBLE);
 
+        ArticleApi mArticleApi = RetrofitUtils.getArticle()
+                .create(ArticleApi.class);
+        nyTimesRepository = new NYTimesRepositoryImpl(mArticleApi);
+
+        searchRequest = new SearchRequest();
         search();
     }
 
     private void search() {
+        // TODO: 22/10/17 Should handle network in Service
         if (NetworkHelper.isNetworkAvailable(getBaseContext())
                 && NetworkHelper.isOnline()) {
-            fetchArticles(searchRequest.getParam(), searchResult -> {
-
-                if (searchResult != null) {
-                    List<Article> articlesResult = searchResult.getArticles();
-                    if (searchRequest.getPage() == 0) {
-                        articles.clear();
-                    }
-
-                    articles.addAll(articlesResult);
-                    if (searchRequest.getPage() == 0) {
-                        rvResult.scrollToPosition(0);
-                    }
-
-                    adapter.notifyDataSetChanged();
-                }
-            });
+            nyTimesRepository.getArticle(searchRequest, this);
         } else {
             Toast.makeText(this, "Offline", Toast.LENGTH_LONG).show();
             pbLoadMore.setVisibility(View.GONE);
             pbLoading.setVisibility(View.GONE);
         }
-
-    }
-
-    private void fetchArticles(Map<String, String> map, Listener listener) {
-        mArticleApi.search(map).enqueue(new Callback<SearchResponse>() {
-            @Override
-            public void onResponse(Call<SearchResponse> call,
-                                   Response<SearchResponse> response) {
-                listener.onResult(response.body());
-                pbLoadMore.setVisibility(View.GONE);
-                pbLoading.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onFailure(Call<SearchResponse> call, Throwable t) {
-
-            }
-        });
     }
 
     @Override
@@ -247,6 +215,26 @@ public class MainActivity extends AppCompatActivity
         articles.clear();
         adapter.notifyDataSetChanged();
         search();
+    }
+
+    @Override
+    public void onResult(SearchResponse searchResponse) {
+        pbLoadMore.setVisibility(View.GONE);
+        pbLoading.setVisibility(View.GONE);
+
+        if (searchResponse != null) {
+            List<Article> articlesResult = searchResponse.getArticles();
+            if (searchRequest.getPage() == 0) {
+                articles.clear();
+            }
+
+            articles.addAll(articlesResult);
+            if (searchRequest.getPage() == 0) {
+                rvResult.scrollToPosition(0);
+            }
+
+            adapter.notifyDataSetChanged();
+        }
     }
 }
 
