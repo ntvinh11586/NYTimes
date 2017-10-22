@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
@@ -31,17 +32,22 @@ import com.coderschool.vinh.nytimes.adapters.ArticleArrayAdapter;
 import com.coderschool.vinh.nytimes.api.ArticleApi;
 import com.coderschool.vinh.nytimes.callbacks.GetArticleCallback;
 import com.coderschool.vinh.nytimes.contracts.ArticleContract;
+import com.coderschool.vinh.nytimes.datas.CurrentPageRepositoryImpl;
 import com.coderschool.vinh.nytimes.datas.NYTimesRepositoryImpl;
+import com.coderschool.vinh.nytimes.datas.SearchRequestRepositoryImpl;
 import com.coderschool.vinh.nytimes.fragments.FilterDialog;
 import com.coderschool.vinh.nytimes.models.Article;
 import com.coderschool.vinh.nytimes.models.Filter;
 import com.coderschool.vinh.nytimes.models.SearchRequest;
 import com.coderschool.vinh.nytimes.models.SearchResponse;
 import com.coderschool.vinh.nytimes.presenters.ArticlePresenter;
+import com.coderschool.vinh.nytimes.repositories.CurrentPageRepository;
 import com.coderschool.vinh.nytimes.repositories.NYTimesRepository;
+import com.coderschool.vinh.nytimes.repositories.SearchRequestRepository;
 import com.coderschool.vinh.nytimes.utils.ItemClickSupport;
 import com.coderschool.vinh.nytimes.utils.NetworkHelper;
 import com.coderschool.vinh.nytimes.utils.RetrofitUtils;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,9 +70,11 @@ public class ArticleActivity extends AppCompatActivity
     private ArticleArrayAdapter adapter;
     private SearchRequest searchRequest;
 
-    private NYTimesRepository nyTimesRepository;
-
     private ArticleContract.Presenter presenter;
+
+    private NYTimesRepository nyTimesRepository;
+    private CurrentPageRepository currentPageRepository;
+    private SearchRequestRepository searchRequestRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,8 +89,23 @@ public class ArticleActivity extends AppCompatActivity
         ArticleApi mArticleApi = RetrofitUtils.getArticle()
                 .create(ArticleApi.class);
         nyTimesRepository = new NYTimesRepositoryImpl(mArticleApi);
+        currentPageRepository = new CurrentPageRepositoryImpl();
 
-        presenter = new ArticlePresenter(nyTimesRepository, this);
+        SharedPreferences pref = getApplicationContext()
+                .getSharedPreferences("Settings", Context.MODE_PRIVATE);
+
+        searchRequestRepository = new SearchRequestRepositoryImpl(
+                pref,
+                currentPageRepository,
+                new Gson()
+        );
+
+        presenter = new ArticlePresenter(
+                nyTimesRepository,
+                currentPageRepository,
+                searchRequestRepository,
+                this
+        );
 
         // TODO: 22/10/17 searchRequest should be a kind of DTO
         searchRequest = new SearchRequest();
@@ -121,13 +144,22 @@ public class ArticleActivity extends AppCompatActivity
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                currentPageRepository.resetCurrentPage();
+
                 searchRequest.setSearchQuery(query);
-                searchRequest.setPage(0);
+                searchRequest.setPage(
+                        currentPageRepository.getCurrentPage()
+                );
                 pbLoading.setVisibility(View.VISIBLE);
+
+
                 articles.clear();
                 adapter.notifyDataSetChanged();
+
                 search();
+
                 searchView.clearFocus();
+
                 return true;
             }
 
@@ -164,7 +196,10 @@ public class ArticleActivity extends AppCompatActivity
 
         adapter.setOnLoadMoreListener(() -> {
             pbLoadMore.setVisibility(View.VISIBLE);
-            searchRequest.setPage(searchRequest.getPage() + 1);
+
+            currentPageRepository.moveToNextPage();
+
+            searchRequest.setPage(currentPageRepository.getCurrentPage());
             search();
         });
 
@@ -222,7 +257,9 @@ public class ArticleActivity extends AppCompatActivity
 
     @Override
     public void onFinishFilterDialog(Filter filter) {
-        searchRequest.setPage(0);
+        currentPageRepository.resetCurrentPage();
+
+        searchRequest.setPage(currentPageRepository.getCurrentPage());
         searchRequest.setSearchFilter(filter);
         pbLoading.setVisibility(View.VISIBLE);
         articles.clear();
@@ -237,12 +274,12 @@ public class ArticleActivity extends AppCompatActivity
 
         if (searchResponse != null) {
             List<Article> articlesResult = searchResponse.getArticles();
-            if (searchRequest.getPage() == 0) {
+            if (currentPageRepository.getCurrentPage() == 0) {
                 articles.clear();
             }
 
             articles.addAll(articlesResult);
-            if (searchRequest.getPage() == 0) {
+            if (currentPageRepository.getCurrentPage() == 0) {
                 rvResult.scrollToPosition(0);
             }
 
@@ -259,8 +296,15 @@ public class ArticleActivity extends AppCompatActivity
     public void showSuccessfullyLoadedArticle(SearchResponse searchResponse) {
         if (searchResponse != null) {
             List<Article> articlesResult = searchResponse.getArticles();
-            articles.clear();
+            if (currentPageRepository.getCurrentPage() == 0) {
+                articles.clear();
+            }
+
             articles.addAll(articlesResult);
+            if (currentPageRepository.getCurrentPage() == 0) {
+                rvResult.scrollToPosition(0);
+            }
+
             adapter.notifyDataSetChanged();
         }
     }
@@ -283,4 +327,3 @@ public class ArticleActivity extends AppCompatActivity
         }
     }
 }
-

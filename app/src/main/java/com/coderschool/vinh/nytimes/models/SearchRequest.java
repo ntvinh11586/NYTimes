@@ -14,6 +14,12 @@ public class SearchRequest {
         searchFilter = null;
     }
 
+    public SearchRequest(int page, String searchQuery, Filter searchFilter) {
+        this.page = page;
+        this.searchQuery = searchQuery;
+        this.searchFilter = searchFilter;
+    }
+
     public Map<String, String> getParam() {
         Map<String, String> map = new HashMap<>();
         map.put("page", String.valueOf(page));
@@ -79,10 +85,6 @@ public class SearchRequest {
 
     public void setSearchQuery(String searchQuery) {
         this.searchQuery = searchQuery;
-    }
-
-    public int getPage() {
-        return page;
     }
 
     public void setPage(int page) {
