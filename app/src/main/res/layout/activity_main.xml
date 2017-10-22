@@ -6,7 +6,7 @@
     android:background="@color/windowBackground"
     android:paddingLeft="4dp"
     android:paddingRight="4dp"
-    tools:context=".activities.MainActivity">
+    tools:context=".activities.ArticleActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycle_view_results"

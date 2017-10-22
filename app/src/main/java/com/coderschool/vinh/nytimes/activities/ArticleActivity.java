@@ -30,12 +30,14 @@ import com.coderschool.vinh.nytimes.R;
 import com.coderschool.vinh.nytimes.adapters.ArticleArrayAdapter;
 import com.coderschool.vinh.nytimes.api.ArticleApi;
 import com.coderschool.vinh.nytimes.callbacks.GetArticleCallback;
+import com.coderschool.vinh.nytimes.contracts.ArticleContract;
 import com.coderschool.vinh.nytimes.datas.NYTimesRepositoryImpl;
 import com.coderschool.vinh.nytimes.fragments.FilterDialog;
 import com.coderschool.vinh.nytimes.models.Article;
 import com.coderschool.vinh.nytimes.models.Filter;
 import com.coderschool.vinh.nytimes.models.SearchRequest;
 import com.coderschool.vinh.nytimes.models.SearchResponse;
+import com.coderschool.vinh.nytimes.presenters.ArticlePresenter;
 import com.coderschool.vinh.nytimes.repositories.NYTimesRepository;
 import com.coderschool.vinh.nytimes.utils.ItemClickSupport;
 import com.coderschool.vinh.nytimes.utils.NetworkHelper;
@@ -47,8 +49,9 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity
-        implements FilterDialog.FilterDialogListener,
+public class ArticleActivity extends AppCompatActivity
+        implements ArticleContract.View,
+        FilterDialog.FilterDialogListener,
         GetArticleCallback {
     @BindView(R.id.recycle_view_results)
     RecyclerView rvResult;
@@ -63,6 +66,8 @@ public class MainActivity extends AppCompatActivity
 
     private NYTimesRepository nyTimesRepository;
 
+    private ArticleContract.Presenter presenter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,12 +78,20 @@ public class MainActivity extends AppCompatActivity
 
         pbLoading.setVisibility(View.VISIBLE);
 
+        presenter = new ArticlePresenter(this);
+
         ArticleApi mArticleApi = RetrofitUtils.getArticle()
                 .create(ArticleApi.class);
         nyTimesRepository = new NYTimesRepositoryImpl(mArticleApi);
 
         searchRequest = new SearchRequest();
         search();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        presenter.start();
     }
 
     private void search() {
@@ -170,7 +183,7 @@ public class MainActivity extends AppCompatActivity
                 .setActionButton(getBitmap(getBaseContext(), R.drawable.ic_menu_share),
                         "Share Link", pendingIntent, true)
                 .build()
-                .launchUrl(MainActivity.this,
+                .launchUrl(ArticleActivity.this,
                         Uri.parse(articles.get(position).getWebUrl()));
     }
 
@@ -235,6 +248,11 @@ public class MainActivity extends AppCompatActivity
 
             adapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    public void setPresenter(ArticleContract.Presenter presenter) {
+        this.presenter = presenter;
     }
 }
 
