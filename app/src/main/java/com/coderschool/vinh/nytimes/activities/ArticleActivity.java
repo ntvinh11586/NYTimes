@@ -78,14 +78,14 @@ public class ArticleActivity extends AppCompatActivity
 
         pbLoading.setVisibility(View.VISIBLE);
 
-        presenter = new ArticlePresenter(this);
-
         ArticleApi mArticleApi = RetrofitUtils.getArticle()
                 .create(ArticleApi.class);
         nyTimesRepository = new NYTimesRepositoryImpl(mArticleApi);
 
+        presenter = new ArticlePresenter(nyTimesRepository, this);
+
+        // TODO: 22/10/17 searchRequest should be a kind of DTO
         searchRequest = new SearchRequest();
-        search();
     }
 
     @Override
@@ -253,6 +253,34 @@ public class ArticleActivity extends AppCompatActivity
     @Override
     public void setPresenter(ArticleContract.Presenter presenter) {
         this.presenter = presenter;
+    }
+
+    @Override
+    public void showSuccessfullyLoadedArticle(SearchResponse searchResponse) {
+        if (searchResponse != null) {
+            List<Article> articlesResult = searchResponse.getArticles();
+            articles.clear();
+            articles.addAll(articlesResult);
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void toggleBodyProgressBar() {
+        if (pbLoading.getVisibility() == View.GONE) {
+            pbLoading.setVisibility(View.VISIBLE);
+        } else {
+            pbLoading.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void toggleFooterProgressBar() {
+        if (pbLoadMore.getVisibility() == View.GONE) {
+            pbLoadMore.setVisibility(View.VISIBLE);
+        } else {
+            pbLoadMore.setVisibility(View.GONE);
+        }
     }
 }
 

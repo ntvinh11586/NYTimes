@@ -15,7 +15,7 @@ import retrofit2.Response;
 public class NYTimesRepositoryImpl implements NYTimesRepository {
     private ArticleApi articleApi;
 
-    public NYTimesRepositoryImpl(ArticleApi articleApi) {
+    public NYTimesRepositoryImpl(@NonNull ArticleApi articleApi) {
         this.articleApi = articleApi;
     }
 
