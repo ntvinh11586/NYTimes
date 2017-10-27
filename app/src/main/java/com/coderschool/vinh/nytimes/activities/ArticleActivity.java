@@ -78,8 +78,9 @@ public class ArticleActivity extends AppCompatActivity
 
         setupRecycleView();
 
-        pbBody.setVisibility(View.VISIBLE);
+        setBodyProgressBar(View.VISIBLE);
 
+        // INJECT CODE
         ArticleApi mArticleApi = RetrofitUtils.getArticle()
                 .create(ArticleApi.class);
         nyTimesRepository = new NYTimesRepositoryImpl(mArticleApi);
@@ -226,19 +227,19 @@ public class ArticleActivity extends AppCompatActivity
     }
 
     @Override
-    public void showSuccessfullyLoadedArticle(SearchResponse searchResponse) {
+    public void onArticlesLoaded(SearchResponse searchResponse) {
         if (searchResponse != null) {
             List<Article> articlesResult = searchResponse.getArticles();
-            if (currentPageRepository.getCurrentPage() == 0) {
-                adapter.clearAll();
-            }
-
+            adapter.clearAll();
             adapter.addAll(articlesResult);
-            if (currentPageRepository.getCurrentPage() == 0) {
-                rvResult.scrollToPosition(0);
-            }
+        }
+    }
 
-            adapter.notifyDataSetChanged();
+    @Override
+    public void onArticlesLoadedMore(SearchResponse searchResponse) {
+        if (searchResponse != null) {
+            List<Article> articlesResult = searchResponse.getArticles();
+            adapter.addAll(articlesResult);
         }
     }
 
@@ -257,5 +258,10 @@ public class ArticleActivity extends AppCompatActivity
         if (searchView != null) {
             searchView.clearFocus();
         }
+    }
+
+    @Override
+    public void scrollToTopPosition() {
+        rvResult.scrollToPosition(0);
     }
 }

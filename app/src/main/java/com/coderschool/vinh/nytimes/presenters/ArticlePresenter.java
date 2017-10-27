@@ -38,7 +38,17 @@ public class ArticlePresenter implements ArticleContract.Presenter {
         nyTimesRepository.getArticle(searchRequest, searchResponse -> {
             view.setBodyProgressBar(View.GONE);
             view.setFooterProgressBar(View.GONE);
-            view.showSuccessfullyLoadedArticle(searchResponse);
+            view.onArticlesLoaded(searchResponse);
+            view.scrollToTopPosition();
+        });
+    }
+
+    private void fetchNextArticles() {
+        SearchRequest searchRequest = searchRequestRepository.getSearchRequest();
+        nyTimesRepository.getArticle(searchRequest, searchResponse -> {
+            view.setBodyProgressBar(View.GONE);
+            view.setFooterProgressBar(View.GONE);
+            view.onArticlesLoadedMore(searchResponse);
         });
     }
 
@@ -46,7 +56,7 @@ public class ArticlePresenter implements ArticleContract.Presenter {
     public void fetchMoreArticles() {
         view.setFooterProgressBar(View.VISIBLE);
         currentPageRepository.moveToNextPage();
-        fetchArticles();
+        fetchNextArticles();
     }
 
     @Override

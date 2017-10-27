@@ -119,5 +119,6 @@ public class ArticleArrayAdapter extends
 
     public void addAll(List<Article> articles) {
         this.mArticles.addAll(articles);
+        notifyDataSetChanged();
     }
 }
