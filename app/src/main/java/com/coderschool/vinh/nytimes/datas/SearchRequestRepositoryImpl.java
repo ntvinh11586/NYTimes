@@ -61,6 +61,6 @@ public class SearchRequestRepositoryImpl implements SearchRequestRepository {
     @Override
     public void clearSearchRequest() {
         currentPageRepository.resetCurrentPage();
-        preferences.edit().clear();
+        preferences.edit().clear().commit();
     }
 }
