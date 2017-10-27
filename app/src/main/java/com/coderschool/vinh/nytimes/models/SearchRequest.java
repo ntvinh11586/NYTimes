@@ -8,12 +8,6 @@ public class SearchRequest {
     private String searchQuery;
     private Filter searchFilter;
 
-    public SearchRequest() {
-        page = 0;
-        searchQuery = "";
-        searchFilter = null;
-    }
-
     public SearchRequest(int page, String searchQuery, Filter searchFilter) {
         this.page = page;
         this.searchQuery = searchQuery;
@@ -69,25 +63,5 @@ public class SearchRequest {
         }
 
         return map;
-    }
-
-    public Filter getSearchFilter() {
-        return searchFilter;
-    }
-
-    public void setSearchFilter(Filter searchFilter) {
-        this.searchFilter = searchFilter;
-    }
-
-    public String getSearchQuery() {
-        return searchQuery;
-    }
-
-    public void setSearchQuery(String searchQuery) {
-        this.searchQuery = searchQuery;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
     }
 }
