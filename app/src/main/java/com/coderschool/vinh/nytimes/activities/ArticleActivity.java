@@ -29,7 +29,6 @@ import android.widget.ProgressBar;
 import com.coderschool.vinh.nytimes.R;
 import com.coderschool.vinh.nytimes.adapters.ArticleArrayAdapter;
 import com.coderschool.vinh.nytimes.api.ArticleApi;
-import com.coderschool.vinh.nytimes.callbacks.GetArticleCallback;
 import com.coderschool.vinh.nytimes.contracts.ArticleContract;
 import com.coderschool.vinh.nytimes.datas.CurrentPageRepositoryImpl;
 import com.coderschool.vinh.nytimes.datas.NYTimesRepositoryImpl;
@@ -37,7 +36,6 @@ import com.coderschool.vinh.nytimes.datas.SearchRequestRepositoryImpl;
 import com.coderschool.vinh.nytimes.fragments.FilterDialog;
 import com.coderschool.vinh.nytimes.models.Article;
 import com.coderschool.vinh.nytimes.models.Filter;
-import com.coderschool.vinh.nytimes.models.SearchRequest;
 import com.coderschool.vinh.nytimes.models.SearchResponse;
 import com.coderschool.vinh.nytimes.presenters.ArticlePresenter;
 import com.coderschool.vinh.nytimes.repositories.CurrentPageRepository;
@@ -55,8 +53,7 @@ import butterknife.ButterKnife;
 
 public class ArticleActivity extends AppCompatActivity
         implements ArticleContract.View,
-        FilterDialog.FilterDialogListener,
-        GetArticleCallback {
+        FilterDialog.FilterDialogListener {
     @BindView(R.id.recycle_view_results)
     RecyclerView rvResult;
     @BindView(R.id.pbLoadMore)
@@ -65,9 +62,7 @@ public class ArticleActivity extends AppCompatActivity
     ProgressBar pbBody;
     SearchView searchView;
 
-    private ArrayList<Article> articles;
     private ArticleArrayAdapter adapter;
-    private SearchRequest searchRequest;
 
     private ArticleContract.Presenter presenter;
 
@@ -105,9 +100,6 @@ public class ArticleActivity extends AppCompatActivity
                 searchRequestRepository,
                 this
         );
-
-        // TODO: 22/10/17 searchRequest should be a kind of DTO
-        searchRequest = new SearchRequest();
     }
 
     @Override
@@ -158,8 +150,7 @@ public class ArticleActivity extends AppCompatActivity
     }
 
     public void setupRecycleView() {
-        articles = new ArrayList<>();
-        adapter = new ArticleArrayAdapter(this, articles);
+        adapter = new ArticleArrayAdapter(this, new ArrayList<>());
         rvResult.setAdapter(adapter);
 
         StaggeredGridLayoutManager gridLayoutManager = new StaggeredGridLayoutManager(
@@ -172,13 +163,14 @@ public class ArticleActivity extends AppCompatActivity
         });
 
         ItemClickSupport.addTo(rvResult)
-                .setOnItemClickListener(this::loadWebView);
+                .setOnItemClickListener((recyclerView, position, v)
+                        -> loadWebView(position));
     }
 
     // TODO: 21/10/17 Need to refactor loadWebView
-    private void loadWebView(RecyclerView recyclerView, int position, View v) {
+    private void loadWebView(int position) {
         PendingIntent pendingIntent = getShareIntentAction(
-                articles.get(position).getWebUrl());
+                adapter.getArticle(position).getWebUrl());
 
         CustomTabsIntent.Builder customTabsIntent = new CustomTabsIntent.Builder();
         customTabsIntent.setToolbarColor(
@@ -187,7 +179,7 @@ public class ArticleActivity extends AppCompatActivity
                         "Share Link", pendingIntent, true)
                 .build()
                 .launchUrl(ArticleActivity.this,
-                        Uri.parse(articles.get(position).getWebUrl()));
+                        Uri.parse(adapter.getArticle(position).getWebUrl()));
     }
 
     PendingIntent getShareIntentAction(String url) {
@@ -229,26 +221,6 @@ public class ArticleActivity extends AppCompatActivity
     }
 
     @Override
-    public void onResult(SearchResponse searchResponse) {
-        pbFooter.setVisibility(View.GONE);
-        pbBody.setVisibility(View.GONE);
-
-        if (searchResponse != null) {
-            List<Article> articlesResult = searchResponse.getArticles();
-            if (currentPageRepository.getCurrentPage() == 0) {
-                articles.clear();
-            }
-
-            articles.addAll(articlesResult);
-            if (currentPageRepository.getCurrentPage() == 0) {
-                rvResult.scrollToPosition(0);
-            }
-
-            adapter.notifyDataSetChanged();
-        }
-    }
-
-    @Override
     public void setPresenter(ArticleContract.Presenter presenter) {
         this.presenter = presenter;
     }
@@ -258,10 +230,10 @@ public class ArticleActivity extends AppCompatActivity
         if (searchResponse != null) {
             List<Article> articlesResult = searchResponse.getArticles();
             if (currentPageRepository.getCurrentPage() == 0) {
-                articles.clear();
+                adapter.clearAll();
             }
 
-            articles.addAll(articlesResult);
+            adapter.addAll(articlesResult);
             if (currentPageRepository.getCurrentPage() == 0) {
                 rvResult.scrollToPosition(0);
             }

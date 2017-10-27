@@ -13,6 +13,7 @@ import com.coderschool.vinh.nytimes.models.Article;
 import com.coderschool.vinh.nytimes.models.Multimedia;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ArticleArrayAdapter extends
         RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -40,10 +41,6 @@ public class ArticleArrayAdapter extends
 
     private Context getContext() {
         return mContext;
-    }
-
-    private Article getArticle(int position) {
-        return mArticles.get(position);
     }
 
     @Override
@@ -109,5 +106,18 @@ public class ArticleArrayAdapter extends
         } else {
             return ARTICLE_RESULT_NO_IMAGE;
         }
+    }
+
+    public Article getArticle(int position) {
+        return mArticles.get(position);
+    }
+
+    public void clearAll() {
+        this.mArticles.clear();
+        notifyDataSetChanged();
+    }
+
+    public void addAll(List<Article> articles) {
+        this.mArticles.addAll(articles);
     }
 }
