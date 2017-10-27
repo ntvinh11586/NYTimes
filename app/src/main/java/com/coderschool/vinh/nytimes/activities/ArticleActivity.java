@@ -25,7 +25,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.coderschool.vinh.nytimes.R;
 import com.coderschool.vinh.nytimes.adapters.ArticleArrayAdapter;
@@ -45,7 +44,6 @@ import com.coderschool.vinh.nytimes.repositories.CurrentPageRepository;
 import com.coderschool.vinh.nytimes.repositories.NYTimesRepository;
 import com.coderschool.vinh.nytimes.repositories.SearchRequestRepository;
 import com.coderschool.vinh.nytimes.utils.ItemClickSupport;
-import com.coderschool.vinh.nytimes.utils.NetworkHelper;
 import com.coderschool.vinh.nytimes.utils.RetrofitUtils;
 import com.google.gson.Gson;
 
@@ -62,9 +60,10 @@ public class ArticleActivity extends AppCompatActivity
     @BindView(R.id.recycle_view_results)
     RecyclerView rvResult;
     @BindView(R.id.pbLoadMore)
-    ProgressBar pbLoadMore;
+    ProgressBar pbFooter;
     @BindView(R.id.pbLoading)
-    ProgressBar pbLoading;
+    ProgressBar pbBody;
+    SearchView searchView;
 
     private ArrayList<Article> articles;
     private ArticleArrayAdapter adapter;
@@ -84,7 +83,7 @@ public class ArticleActivity extends AppCompatActivity
 
         setupRecycleView();
 
-        pbLoading.setVisibility(View.VISIBLE);
+        pbBody.setVisibility(View.VISIBLE);
 
         ArticleApi mArticleApi = RetrofitUtils.getArticle()
                 .create(ArticleApi.class);
@@ -117,49 +116,22 @@ public class ArticleActivity extends AppCompatActivity
         presenter.start();
     }
 
-    private void search() {
-        // TODO: 22/10/17 Should handle network in Service
-        if (NetworkHelper.isNetworkAvailable(getBaseContext())
-                && NetworkHelper.isOnline()) {
-            nyTimesRepository.getArticle(searchRequest, this);
-        } else {
-            Toast.makeText(this, "Offline", Toast.LENGTH_LONG).show();
-            pbLoadMore.setVisibility(View.GONE);
-            pbLoading.setVisibility(View.GONE);
-        }
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
 
         MenuItem searchItem = menu.findItem(R.id.action_search);
-        SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView = (SearchView) searchItem.getActionView();
         searchView.setOnCloseListener(() -> {
-            searchRequest.setSearchQuery("");
+            presenter.fetchMainArticles();
             return false;
         });
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                currentPageRepository.resetCurrentPage();
-
-                searchRequest.setSearchQuery(query);
-                searchRequest.setPage(
-                        currentPageRepository.getCurrentPage()
-                );
-                pbLoading.setVisibility(View.VISIBLE);
-
-
-                articles.clear();
-                adapter.notifyDataSetChanged();
-
-                search();
-
-                searchView.clearFocus();
-
+                presenter.fetchSearchArticles(query);
                 return true;
             }
 
@@ -190,17 +162,13 @@ public class ArticleActivity extends AppCompatActivity
         adapter = new ArticleArrayAdapter(this, articles);
         rvResult.setAdapter(adapter);
 
-        StaggeredGridLayoutManager gridLayoutManager =
-                new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        StaggeredGridLayoutManager gridLayoutManager = new StaggeredGridLayoutManager(
+                2, StaggeredGridLayoutManager.VERTICAL
+        );
         rvResult.setLayoutManager(gridLayoutManager);
 
         adapter.setOnLoadMoreListener(() -> {
-            pbLoadMore.setVisibility(View.VISIBLE);
-
-            currentPageRepository.moveToNextPage();
-
-            searchRequest.setPage(currentPageRepository.getCurrentPage());
-            search();
+            presenter.fetchMoreArticles();
         });
 
         ItemClickSupport.addTo(rvResult)
@@ -257,20 +225,13 @@ public class ArticleActivity extends AppCompatActivity
 
     @Override
     public void onFinishFilterDialog(Filter filter) {
-        currentPageRepository.resetCurrentPage();
-
-        searchRequest.setPage(currentPageRepository.getCurrentPage());
-        searchRequest.setSearchFilter(filter);
-        pbLoading.setVisibility(View.VISIBLE);
-        articles.clear();
-        adapter.notifyDataSetChanged();
-        search();
+        presenter.fetchArticlesWithFilter(filter);
     }
 
     @Override
     public void onResult(SearchResponse searchResponse) {
-        pbLoadMore.setVisibility(View.GONE);
-        pbLoading.setVisibility(View.GONE);
+        pbFooter.setVisibility(View.GONE);
+        pbBody.setVisibility(View.GONE);
 
         if (searchResponse != null) {
             List<Article> articlesResult = searchResponse.getArticles();
@@ -310,20 +271,19 @@ public class ArticleActivity extends AppCompatActivity
     }
 
     @Override
-    public void toggleBodyProgressBar() {
-        if (pbLoading.getVisibility() == View.GONE) {
-            pbLoading.setVisibility(View.VISIBLE);
-        } else {
-            pbLoading.setVisibility(View.GONE);
-        }
+    public void setBodyProgressBar(int visibility) {
+        pbBody.setVisibility(visibility);
     }
 
     @Override
-    public void toggleFooterProgressBar() {
-        if (pbLoadMore.getVisibility() == View.GONE) {
-            pbLoadMore.setVisibility(View.VISIBLE);
-        } else {
-            pbLoadMore.setVisibility(View.GONE);
+    public void setFooterProgressBar(int visibility) {
+        pbFooter.setVisibility(visibility);
+    }
+
+    @Override
+    public void clearFocusedSearch() {
+        if (searchView != null) {
+            searchView.clearFocus();
         }
     }
 }

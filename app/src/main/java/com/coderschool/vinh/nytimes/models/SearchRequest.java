@@ -43,29 +43,29 @@ public class SearchRequest {
             } else if (searchFilter.sortOrder.equals("Oldest")) {
                 map.put("sort", "oldest");
             }
-
-            String newDesk = "news_desk:(";
-            if (searchFilter.isArts == 1) {
-                newDesk += "\"Arts\"";
-            }
-            if (searchFilter.isFashionStyle == 1) {
-                if (!newDesk.equals("news_desk:(")) {
-                    newDesk += "%20\"Fashion & Style\"";
-                } else {
-                    newDesk += "\"Fashion & Style\"";
-                }
-            }
-            if (searchFilter.isSports == 1) {
-                if (!newDesk.equals("news_desk:(")) {
-                    newDesk += "%20\"Sports\"";
-                } else {
-                    newDesk += "\"Sports\"";
-                }
-            }
-            newDesk += ")";
-            if (newDesk.equals("news_desk:()")) {
-                map.put("fq", newDesk);
-            }
+            // TODO: 27/10/17 Fix change API
+//            String newDesk = "news_desk:(";
+//            if (searchFilter.isArts == 1) {
+//                newDesk += "\"Arts\"";
+//            }
+//            if (searchFilter.isFashionStyle == 1) {
+//                if (!newDesk.equals("news_desk:(")) {
+//                    newDesk += "%20\"Fashion & Style\"";
+//                } else {
+//                    newDesk += "\"Fashion & Style\"";
+//                }
+//            }
+//            if (searchFilter.isSports == 1) {
+//                if (!newDesk.equals("news_desk:(")) {
+//                    newDesk += "%20\"Sports\"";
+//                } else {
+//                    newDesk += "\"Sports\"";
+//                }
+//            }
+//            newDesk += ")";
+//            if (newDesk.equals("news_desk:()")) {
+//                map.put("fq", newDesk);
+//            }
         }
 
         return map;

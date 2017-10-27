@@ -57,4 +57,10 @@ public class SearchRequestRepositoryImpl implements SearchRequestRepository {
                 .putString(PREF_SEARCH_QUERY, searchQuery)
                 .commit();
     }
+
+    @Override
+    public void clearSearchRequest() {
+        currentPageRepository.resetCurrentPage();
+        preferences.edit().clear();
+    }
 }

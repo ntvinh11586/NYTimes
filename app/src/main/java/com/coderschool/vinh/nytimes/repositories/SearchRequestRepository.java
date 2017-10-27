@@ -9,4 +9,5 @@ public interface SearchRequestRepository {
     SearchRequest getSearchRequest();
     void setSearchRequestFilter(Filter filter);
     void setSearchQuery(@NonNull String searchQuery);
+    void clearSearchRequest();
 }
