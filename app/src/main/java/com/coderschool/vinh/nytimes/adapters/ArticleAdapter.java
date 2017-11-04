@@ -10,13 +10,14 @@ import android.view.ViewGroup;
 import com.bumptech.glide.Glide;
 import com.coderschool.vinh.nytimes.R;
 import com.coderschool.vinh.nytimes.callbacks.OnArticleItemClickCallback;
+import com.coderschool.vinh.nytimes.callbacks.OnLoadMoreItemCallback;
 import com.coderschool.vinh.nytimes.models.Article;
 import com.coderschool.vinh.nytimes.models.Multimedia;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArticleArrayAdapter extends
+public class ArticleAdapter extends
         RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final int ARTICLE_RESULT_WITH_IMAGE = 0;
     private final int ARTICLE_RESULT_NO_IMAGE = 1;
@@ -24,14 +25,10 @@ public class ArticleArrayAdapter extends
     private ArrayList<Article> mArticles;
     private Context mContext;
 
-    private OnLoadMoreItemListener onLoadMoreItemCallback;
+    private OnLoadMoreItemCallback onLoadMoreItemCallback;
     private OnArticleItemClickCallback onArticleItemClickCallback;
 
-    public interface OnLoadMoreItemListener {
-        void onLoadMoreItem();
-    }
-
-    public void setOnLoadMoreListener(OnLoadMoreItemListener onLoadMoreItemCallback) {
+    public void setOnLoadMoreListener(OnLoadMoreItemCallback onLoadMoreItemCallback) {
         this.onLoadMoreItemCallback = onLoadMoreItemCallback;
     }
 
@@ -39,7 +36,7 @@ public class ArticleArrayAdapter extends
         this.onArticleItemClickCallback = onArticleItemClickCallback;
     }
 
-    public ArticleArrayAdapter(Context context, ArrayList<Article> articles) {
+    public ArticleAdapter(Context context, ArrayList<Article> articles) {
         mArticles = articles;
         mContext = context;
     }

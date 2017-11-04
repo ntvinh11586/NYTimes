@@ -19,7 +19,7 @@ import android.widget.ProgressBar;
 
 import com.coderschool.vinh.nytimes.ArticleApp;
 import com.coderschool.vinh.nytimes.R;
-import com.coderschool.vinh.nytimes.adapters.ArticleArrayAdapter;
+import com.coderschool.vinh.nytimes.adapters.ArticleAdapter;
 import com.coderschool.vinh.nytimes.contracts.ArticleContract;
 import com.coderschool.vinh.nytimes.fragments.FilterDialog;
 import com.coderschool.vinh.nytimes.models.Article;
@@ -48,7 +48,7 @@ public class ArticleActivity extends AppCompatActivity
     ProgressBar pbBody;
     SearchView searchView;
 
-    private ArticleArrayAdapter adapter;
+    private ArticleAdapter adapter;
 
     private ArticleContract.Presenter presenter;
 
@@ -112,7 +112,7 @@ public class ArticleActivity extends AppCompatActivity
     }
 
     public void setupRecycleView() {
-        adapter = new ArticleArrayAdapter(this, new ArrayList<>());
+        adapter = new ArticleAdapter(this, new ArrayList<>());
         rvArticles.setAdapter(adapter);
 
         StaggeredGridLayoutManager gridLayoutManager = new StaggeredGridLayoutManager(
