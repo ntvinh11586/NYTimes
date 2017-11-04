@@ -1,18 +1,12 @@
 package com.coderschool.vinh.nytimes.activities;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.VectorDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
@@ -51,11 +45,16 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.coderschool.vinh.nytimes.utils.DrawableMapper.toBitMap;
+
 public class ArticleActivity extends AppCompatActivity
         implements ArticleContract.View,
         FilterDialog.FilterDialogListener {
+
+    private int WEB_VIEW_SHARE_ACTION = 100;
+
     @BindView(R.id.recycle_view_results)
-    RecyclerView rvResult;
+    RecyclerView rvArticles;
     @BindView(R.id.pbLoadMore)
     ProgressBar pbFooter;
     @BindView(R.id.pbLoading)
@@ -65,10 +64,6 @@ public class ArticleActivity extends AppCompatActivity
     private ArticleArrayAdapter adapter;
 
     private ArticleContract.Presenter presenter;
-
-    private NYTimesRepository nyTimesRepository;
-    private CurrentPageRepository currentPageRepository;
-    private SearchRequestRepository searchRequestRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,13 +78,13 @@ public class ArticleActivity extends AppCompatActivity
         // INJECT CODE
         ArticleApi mArticleApi = RetrofitUtils.getArticle()
                 .create(ArticleApi.class);
-        nyTimesRepository = new NYTimesRepositoryImpl(mArticleApi);
-        currentPageRepository = new CurrentPageRepositoryImpl();
+        NYTimesRepository nyTimesRepository = new NYTimesRepositoryImpl(mArticleApi);
+        CurrentPageRepository currentPageRepository = new CurrentPageRepositoryImpl();
 
         SharedPreferences pref = getApplicationContext()
                 .getSharedPreferences("Settings", Context.MODE_PRIVATE);
 
-        searchRequestRepository = new SearchRequestRepositoryImpl(
+        SearchRequestRepository searchRequestRepository = new SearchRequestRepositoryImpl(
                 pref,
                 currentPageRepository,
                 new Gson()
@@ -152,68 +147,60 @@ public class ArticleActivity extends AppCompatActivity
 
     public void setupRecycleView() {
         adapter = new ArticleArrayAdapter(this, new ArrayList<>());
-        rvResult.setAdapter(adapter);
+        rvArticles.setAdapter(adapter);
 
         StaggeredGridLayoutManager gridLayoutManager = new StaggeredGridLayoutManager(
                 2, StaggeredGridLayoutManager.VERTICAL
         );
-        rvResult.setLayoutManager(gridLayoutManager);
+        rvArticles.setLayoutManager(gridLayoutManager);
 
-        adapter.setOnLoadMoreListener(() -> {
-            presenter.fetchMoreArticles();
-        });
+        adapter.setOnLoadMoreListener(()
+                -> presenter.fetchMoreArticles());
 
-        ItemClickSupport.addTo(rvResult)
-                .setOnItemClickListener((recyclerView, position, v)
-                        -> loadWebView(position));
+        ItemClickSupport
+                .addTo(rvArticles)
+                .setOnItemClickListener((recyclerView, position, v) -> {
+                    Article article = adapter.getArticle(position);
+                    if (article != null) {
+                        loadWebView(article.getWebUrl());
+                    }
+                });
     }
 
-    // TODO: 21/10/17 Need to refactor loadWebView
-    private void loadWebView(int position) {
-        PendingIntent pendingIntent = getShareIntentAction(
-                adapter.getArticle(position).getWebUrl());
-
-        CustomTabsIntent.Builder customTabsIntent = new CustomTabsIntent.Builder();
-        customTabsIntent.setToolbarColor(
-                ContextCompat.getColor(getBaseContext(), R.color.colorPrimary))
-                .setActionButton(getBitmap(getBaseContext(), R.drawable.ic_menu_share),
-                        "Share Link", pendingIntent, true)
+    private void loadWebView(@NonNull String url) {
+        new CustomTabsIntent
+                .Builder()
+                .setToolbarColor(ContextCompat.getColor(
+                        this,
+                        R.color.colorPrimary
+                ))
+                .setActionButton(
+                        toBitMap(ContextCompat.getDrawable(
+                                this,
+                                R.drawable.ic_menu_share
+                        )),
+                        getString(R.string.share_link),
+                        getShareIntentAction(url),
+                        true
+                )
                 .build()
-                .launchUrl(ArticleActivity.this,
-                        Uri.parse(adapter.getArticle(position).getWebUrl()));
+                .launchUrl(
+                        this,
+                        Uri.parse(url)
+                );
     }
 
-    PendingIntent getShareIntentAction(String url) {
+    private PendingIntent getShareIntentAction(String url) {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT, url);
-        int requestCode = 100;
 
-        return PendingIntent.getActivity(getBaseContext(),
-                requestCode,
+        return PendingIntent.getActivity(
+                this,
+                WEB_VIEW_SHARE_ACTION,
                 intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
-    private Bitmap getBitmap(Context context, int drawableId) {
-        Drawable drawable = ContextCompat.getDrawable(context, drawableId);
-        if (drawable instanceof BitmapDrawable) {
-            return ((BitmapDrawable) drawable).getBitmap();
-        } else if (drawable instanceof VectorDrawable) {
-            return getBitmap((VectorDrawable) drawable);
-        } else {
-            throw new IllegalArgumentException("unsupported drawable type");
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private Bitmap getBitmap(VectorDrawable vectorDrawable) {
-        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
-                vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        vectorDrawable.draw(canvas);
-        return bitmap;
+                PendingIntent.FLAG_UPDATE_CURRENT
+        );
     }
 
     @Override
@@ -262,6 +249,6 @@ public class ArticleActivity extends AppCompatActivity
 
     @Override
     public void scrollToTopPosition() {
-        rvResult.scrollToPosition(0);
+        rvArticles.scrollToPosition(0);
     }
 }

@@ -25,5 +25,4 @@
         android:padding="8dp"
         android:text="TextView"
         android:textStyle="bold" />
-
 </LinearLayout>

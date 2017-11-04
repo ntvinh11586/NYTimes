@@ -3,4 +3,5 @@
     <string name="hint">Enter search query</string>
     <string name="hints">Enter search query</string>
     <string name="title_activity_search_filter">SearchFilterActivity</string>
+    <string name="share_link">Share Link</string>
 </resources>

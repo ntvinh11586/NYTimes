@@ -75,6 +75,16 @@ public class FilterDialog extends DialogFragment {
             int isFashionStyle = cbFashionStyle.isChecked() ? 1 : 0;
             int isSport = cbSports.isChecked() ? 1 : 0;
 
+
+
+
+//            Filter filter = new Filter(
+//                    Calendar.getInstance(),
+//                    sortOrder,
+//
+//            );
+
+
             Filter filter = new Filter(day, month, year, sortOrder, isArts, isFashionStyle, isSport);
 
             FilterDialogListener listener = (FilterDialogListener) getActivity();
