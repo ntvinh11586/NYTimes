@@ -1,9 +1,7 @@
 package com.coderschool.vinh.nytimes.activities;
 
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,27 +15,17 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ProgressBar;
 
+import com.coderschool.vinh.nytimes.ArticleApp;
 import com.coderschool.vinh.nytimes.R;
 import com.coderschool.vinh.nytimes.adapters.ArticleArrayAdapter;
-import com.coderschool.vinh.nytimes.api.ArticleApi;
 import com.coderschool.vinh.nytimes.contracts.ArticleContract;
-import com.coderschool.vinh.nytimes.datas.CurrentPageRepositoryImpl;
-import com.coderschool.vinh.nytimes.datas.NYTimesRepositoryImpl;
-import com.coderschool.vinh.nytimes.datas.SearchRequestRepositoryImpl;
 import com.coderschool.vinh.nytimes.fragments.FilterDialog;
 import com.coderschool.vinh.nytimes.models.Article;
 import com.coderschool.vinh.nytimes.models.Filter;
 import com.coderschool.vinh.nytimes.models.SearchResponse;
-import com.coderschool.vinh.nytimes.presenters.ArticlePresenter;
-import com.coderschool.vinh.nytimes.repositories.CurrentPageRepository;
-import com.coderschool.vinh.nytimes.repositories.NYTimesRepository;
-import com.coderschool.vinh.nytimes.repositories.SearchRequestRepository;
 import com.coderschool.vinh.nytimes.utils.ItemClickSupport;
-import com.coderschool.vinh.nytimes.utils.RetrofitUtils;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,29 +61,8 @@ public class ArticleActivity extends AppCompatActivity
 
         setupRecycleView();
 
-        setBodyProgressBar(View.VISIBLE);
-
-        // INJECT CODE
-        ArticleApi mArticleApi = RetrofitUtils.getArticle()
-                .create(ArticleApi.class);
-        NYTimesRepository nyTimesRepository = new NYTimesRepositoryImpl(mArticleApi);
-        CurrentPageRepository currentPageRepository = new CurrentPageRepositoryImpl();
-
-        SharedPreferences pref = getApplicationContext()
-                .getSharedPreferences("Settings", Context.MODE_PRIVATE);
-
-        SearchRequestRepository searchRequestRepository = new SearchRequestRepositoryImpl(
-                pref,
-                currentPageRepository,
-                new Gson()
-        );
-
-        presenter = new ArticlePresenter(
-                nyTimesRepository,
-                currentPageRepository,
-                searchRequestRepository,
-                this
-        );
+        presenter = ((ArticleApp) getApplication())
+                .injectArticlePresenter(this);
     }
 
     @Override
