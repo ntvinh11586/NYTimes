@@ -17,25 +17,38 @@ import com.coderschool.vinh.nytimes.utils.RetrofitUtils;
 import com.google.gson.Gson;
 
 public class ArticleApp extends Application {
-    public ArticlePresenter injectArticlePresenter(ArticleContract.View view) {
+    private NYTimesRepository getNYTimesRepository() {
         ArticleApi mArticleApi = RetrofitUtils.getArticle()
                 .create(ArticleApi.class);
-        NYTimesRepository nyTimesRepository = new NYTimesRepositoryImpl(mArticleApi);
-        CurrentPageRepository currentPageRepository = new CurrentPageRepositoryImpl();
+        return new NYTimesRepositoryImpl(mArticleApi);
+    }
 
-        SharedPreferences pref = getApplicationContext()
+    private CurrentPageRepository getCurrentPageRepository() {
+        return new CurrentPageRepositoryImpl();
+    }
+
+    private SharedPreferences getSettingsPref() {
+        return getApplicationContext()
                 .getSharedPreferences("Settings", Context.MODE_PRIVATE);
+    }
 
-        SearchRequestRepository searchRequestRepository = new SearchRequestRepositoryImpl(
-                pref,
-                currentPageRepository,
-                new Gson()
+    private Gson getGson() {
+        return new Gson();
+    }
+
+    private SearchRequestRepository getSearchRequestRepository() {
+        return new SearchRequestRepositoryImpl(
+                getSettingsPref(),
+                getCurrentPageRepository(),
+                getGson()
         );
+    }
 
+    public ArticlePresenter injectArticlePresenter(ArticleContract.View view) {
         return new ArticlePresenter(
-                nyTimesRepository,
-                currentPageRepository,
-                searchRequestRepository,
+                getNYTimesRepository(),
+                getCurrentPageRepository(),
+                getSearchRequestRepository(),
                 view
         );
     }
