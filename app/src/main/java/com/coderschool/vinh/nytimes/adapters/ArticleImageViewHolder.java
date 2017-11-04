@@ -20,6 +20,5 @@ public class ArticleImageViewHolder extends RecyclerView.ViewHolder {
         super(itemView);
         ButterKnife.bind(this, itemView);
     }
-
 }
 

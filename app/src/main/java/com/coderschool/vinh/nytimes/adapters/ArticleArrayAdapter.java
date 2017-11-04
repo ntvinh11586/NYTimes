@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
 import com.coderschool.vinh.nytimes.R;
+import com.coderschool.vinh.nytimes.callbacks.OnArticleItemClickCallback;
 import com.coderschool.vinh.nytimes.models.Article;
 import com.coderschool.vinh.nytimes.models.Multimedia;
 
@@ -23,15 +24,19 @@ public class ArticleArrayAdapter extends
     private ArrayList<Article> mArticles;
     private Context mContext;
 
-    // Handle load more item listener - callback pattern
-    private OnLoadMoreItemListener mOnLoadMoreItemListener;
+    private OnLoadMoreItemListener onLoadMoreItemCallback;
+    private OnArticleItemClickCallback onArticleItemClickCallback;
 
     public interface OnLoadMoreItemListener {
         void onLoadMoreItem();
     }
 
-    public void setOnLoadMoreListener(OnLoadMoreItemListener onLoadMoreItemListener) {
-        mOnLoadMoreItemListener = onLoadMoreItemListener;
+    public void setOnLoadMoreListener(OnLoadMoreItemListener onLoadMoreItemCallback) {
+        this.onLoadMoreItemCallback = onLoadMoreItemCallback;
+    }
+
+    public void setOnArticleItemClickListener(OnArticleItemClickCallback onArticleItemClickCallback) {
+        this.onArticleItemClickCallback = onArticleItemClickCallback;
     }
 
     public ArticleArrayAdapter(Context context, ArrayList<Article> articles) {
@@ -69,10 +74,18 @@ public class ArticleArrayAdapter extends
                 break;
         }
 
+        viewHolder
+                .itemView
+                .setOnClickListener(v -> {
+                    if (onArticleItemClickCallback != null) {
+                        onArticleItemClickCallback.onArticleItemClick(getArticle(position));
+                    }
+                });
+
         // handle load more item
-        if (position == mArticles.size() - 1 && mOnLoadMoreItemListener != null) {
+        if (position == mArticles.size() - 1 && onLoadMoreItemCallback != null) {
             // callback
-            mOnLoadMoreItemListener.onLoadMoreItem();
+            onLoadMoreItemCallback.onLoadMoreItem();
         }
     }
 

@@ -25,7 +25,6 @@ import com.coderschool.vinh.nytimes.fragments.FilterDialog;
 import com.coderschool.vinh.nytimes.models.Article;
 import com.coderschool.vinh.nytimes.models.Filter;
 import com.coderschool.vinh.nytimes.models.SearchResponse;
-import com.coderschool.vinh.nytimes.utils.ItemClickSupport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,14 +123,8 @@ public class ArticleActivity extends AppCompatActivity
         adapter.setOnLoadMoreListener(()
                 -> presenter.fetchMoreArticles());
 
-        ItemClickSupport
-                .addTo(rvArticles)
-                .setOnItemClickListener((recyclerView, position, v) -> {
-                    Article article = adapter.getArticle(position);
-                    if (article != null) {
-                        loadWebView(article.getWebUrl());
-                    }
-                });
+        adapter.setOnArticleItemClickListener(article
+                -> loadWebView(article.getWebUrl()));
     }
 
     private void loadWebView(@NonNull String url) {
