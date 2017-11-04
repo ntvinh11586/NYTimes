@@ -1,6 +1,6 @@
 package com.coderschool.vinh.nytimes.models;
 
-import com.coderschool.vinh.nytimes.utils.Constant;
+import com.coderschool.vinh.nytimes.utils.BaseConstant;
 import com.google.gson.annotations.SerializedName;
 
 import org.parceler.Parcel;
@@ -15,6 +15,6 @@ public class Multimedia {
     }
 
     public String getFullUrl() {
-        return Constant.BASE_URL + url;
+        return BaseConstant.BASE_URL + url;
     }
 }
